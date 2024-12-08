@@ -39,13 +39,14 @@ class UserPanel:
         screen.blit(room_input_desc, (config.SCREEN_WIDTH - config.PANEL_WIDTH + 20, 105))
 
         if dormitory.selected_room is not None:
-            self.draw_selected_room_panel(dormitory)
+            self.draw_selected_room_panel(screen, dormitory)
 
 
-    def draw_selected_room_panel(self, dormitory):
+    def draw_selected_room_panel(self, screen, dormitory):
         # Display stats for the selected room
         font2 = pygame.font.SysFont("Arial", 20)
-        students_in_room = [s for s in dormitory.students if s.floor_number == dormitory.current_floor and s.room_number == dormitory.selected_room]
+        floor = dormitory.floors[dormitory.current_floor]
+        students_in_room = [s for s in floor.students if s.native_room.number == dormitory.selected_room]
         screen.blit(font2.render("Students in room:", True, config.BLACK), (config.SCREEN_WIDTH - config.PANEL_WIDTH + 20, 150))
         height = 180
         for i, student in enumerate(students_in_room): 

@@ -1,5 +1,3 @@
-
-
 # Colors
 LIGHT_BROWN = (181, 101, 29)
 LIGHT_GRAY = (200, 200, 200)
