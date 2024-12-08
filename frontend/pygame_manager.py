@@ -1,13 +1,14 @@
 import pygame
-import display_config as config
+import display_config as dconfig
 
 from frontend.user_panel import UserPanel
+from core.elements.student import StudentState
 
 class PygameManager:
     def __init__(self):
         pygame.init()
 
-        self.screen = pygame.display.set_mode((config.SCREEN_WIDTH, config.SCREEN_HEIGHT))
+        self.screen = pygame.display.set_mode((dconfig.SCREEN_WIDTH, dconfig.SCREEN_HEIGHT))
         pygame.display.set_caption("Dormitory")
 
         self.user_panel = UserPanel()
@@ -15,10 +16,10 @@ class PygameManager:
 
     def draw_room(self, room):
         for bx, by in room.beds:
-            pygame.draw.rect(self.screen, config.WHITE, (bx * config.TILE_SIZE, by * config.TILE_SIZE, config.TILE_SIZE * config.BED_WIDTH, config.TILE_SIZE * 3))
-            pygame.draw.rect(self.screen, config.RED, (bx * config.TILE_SIZE, (by+0.5) * config.TILE_SIZE, config.TILE_SIZE*1.5, config.TILE_SIZE*2))
+            pygame.draw.rect(self.screen, dconfig.WHITE, (bx * dconfig.TILE_SIZE, by * dconfig.TILE_SIZE, dconfig.TILE_SIZE * dconfig.BED_WIDTH, dconfig.TILE_SIZE * 3))
+            pygame.draw.rect(self.screen, dconfig.RED, (bx * dconfig.TILE_SIZE, (by+0.5) * dconfig.TILE_SIZE, dconfig.TILE_SIZE*1.5, dconfig.TILE_SIZE*2))
         for dx, dy in room.desks:
-            pygame.draw.rect(self.screen, config.BLACK, (dx * config.TILE_SIZE, dy * config.TILE_SIZE, config.TILE_SIZE * 6, config.TILE_SIZE * 2))
+            pygame.draw.rect(self.screen, dconfig.BLACK, (dx * dconfig.TILE_SIZE, dy * dconfig.TILE_SIZE, dconfig.TILE_SIZE * 6, dconfig.TILE_SIZE * 2))
     
 
     def draw_dormitory(self, dormitory):
@@ -27,32 +28,45 @@ class PygameManager:
 
         for room in floor.rooms:
             self.draw_room(room)
+            room.reset_positions()
 
         for student in floor.students:
             self.draw_student(student)
 
     def draw_student(self, student):
         room = student.current_room
-        student_num = student.name.split('_')[0]
-        bed_pos = room.beds[0] if student_num == 'Student1' else room.beds[1]
-        student_img = pygame.transform.scale(student.photo, (config.TILE_SIZE * 1.5, config.TILE_SIZE * 1.5))
-        self.screen.blit(student_img, (bed_pos[0] * config.TILE_SIZE, (room.y + config.ROOM_HEIGHT / 2 - 1.5) * config.TILE_SIZE))
+        student_img = pygame.transform.scale(student.photo, (dconfig.TILE_SIZE * 1.5, dconfig.TILE_SIZE * 1.5))
+        position = self.get_student_position(room, student)
+        self.screen.blit(student_img, (position.x * dconfig.TILE_SIZE, position.y * dconfig.TILE_SIZE))
+
+    def get_student_position(self, room, student):
+        match student.state:
+            case StudentState.RESTING:
+                return room.get_resting_position(student)
+            case StudentState.PARTYING:
+                return room.get_partying_position()
+            case StudentState.SLEEPING:
+                return room.get_sleeping_position(student)
+            case _:
+                raise Exception("Student is in a state that is impossible for us to understand with our mortal minds")
 
     def draw_floor(self, floor):
-        for row in range(floor.rows):
-            for col in range(floor.cols):
-                color = config.LIGHT_BROWN if (row, col) not in floor.room_walls() else config.LIGHT_GRAY
-                pygame.draw.rect(self.screen, color, (col * config.TILE_SIZE, row * config.TILE_SIZE, config.TILE_SIZE, config.TILE_SIZE))
-                pygame.draw.rect(self.screen, config.BLACK, (col * config.TILE_SIZE, row * config.TILE_SIZE, config.TILE_SIZE, config.TILE_SIZE), 1)
+        for row in range(dconfig.ROWS):
+            for col in range(dconfig.COLS):
+                color = dconfig.LIGHT_BROWN if (row, col) not in floor.room_walls() else dconfig.LIGHT_GRAY
+                pygame.draw.rect(self.screen, color, (col * dconfig.TILE_SIZE, row * dconfig.TILE_SIZE, dconfig.TILE_SIZE, dconfig.TILE_SIZE))
+                pygame.draw.rect(self.screen, dconfig.BLACK, (col * dconfig.TILE_SIZE, row * dconfig.TILE_SIZE, dconfig.TILE_SIZE, dconfig.TILE_SIZE), 1)
 
     def draw(self, dormitory):
-        self.screen.fill(config.BLACK)
+        self.screen.fill(dconfig.BLACK)
         self.draw_dormitory(dormitory)
         self.user_panel.draw(self.screen, dormitory)
         pygame.display.flip()
 
 
     def handle_keydown(self, event, dormitory):
+
+        # TODO prettify this blasphemous code below
         if event.key == pygame.K_ESCAPE:
             return False
         elif event.key == pygame.K_RETURN:  # Confirm floor or room change

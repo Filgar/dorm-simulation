@@ -14,7 +14,10 @@ ROOM_HEIGHT = 10  # tiles
 BED_WIDTH = 6
 
 # Student display
-STUDENT_PHOTO = "stickerman2.png"
+ASSETS_PATH = "assets/"
+STUDENT_PHOTO_PARTY = ASSETS_PATH + "stickerman_party.png"
+STUDENT_PHOTO_REST = ASSETS_PATH + "stickerman_rest.png"
+STUDENT_PHOTO_LEARN = ASSETS_PATH + "stickerman_learn.png"
 
 # User Panel display
 PANEL_WIDTH = 300
