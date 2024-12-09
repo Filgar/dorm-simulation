@@ -6,20 +6,18 @@ from core.elements.student import Student, StudentState
 class StateProcessor:
     def __init__(self, dormitory: Dormitory):
         self.dormitory = dormitory
-        self.exam_difficulty = max(0.5, min(1.5, random.gauss(1, 0.2)))
+        self.exam_difficulty = max(0.5, min(1.5, random.gauss(1, 0.4)))
 
     def setup_new_exam(self):
-        self.exam_difficulty = max(0.5, min(1.5, random.gauss(1, 0.2)))
+        self.exam_difficulty = max(0.5, min(1.5, random.gauss(1, 0.4)))
 
     def iterate(self, is_exam_season: bool):
-        if not is_exam_season:
-            self.setup_new_exam()
         for floor in self.dormitory.floors:
             for student in floor.students:
                 self.adjust_rates(student)
                 self.process_state(student)
                 if is_exam_season:
-                    student.knowledge -= (1 / 24) / 2 #On average 50% of knowledge is required to survive
+                    student.knowledge -= (1 / 24) / 2  * self.exam_difficulty # 50% knowledge modified by exam difficulty required to survive
                     if student.knowledge < 0:
                         floor.students.remove(student) # Goodbye cruel world
                 student.validate_values()
@@ -56,14 +54,14 @@ class StateProcessor:
         
 
     def process_learning_state(self, student: Student):
+        student.knowledge += 0.01 + 0.01 * student.learning_rate
+        student.energy -= 0.15 + 0.1 * student.stamina_rate
+
         dice = random.random()
         if student.energy < 0.5 and dice < 1 - student.energy:
             student.state = StudentState.RESTING
-        elif dice < student.eagerness_to_party:
+        elif dice < student.eagerness_to_party * 0.5:
             student.state = StudentState.PARTYING
-        else:
-            student.knowledge += 0.01 + 0.01 * student.learning_rate
-            student.energy -= 0.15 + 0.1 * student.stamina_rate
 
     #Modifies rates
     def adjust_rates(self, student: Student):

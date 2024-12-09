@@ -52,15 +52,15 @@ class UserPanel:
 
 
     def draw_time(self, screen, time, difficulty):
-        difficulty = 'Easy' if difficulty < 0.8 else 'Hard' if difficulty > 1.2 else 'Moderate'
+        difficulty_level = 'Easy' if difficulty < 0.9 else 'Hard' if difficulty > 1.1 else 'Moderate'
 
         font = pygame.font.SysFont("Arial", 24)
         font2 = pygame.font.SysFont("Arial", 20)
         height = 20
         screen.blit(font2.render(f'Day {time // 24} {time%24:02}:00', True, dconfig.BLACK), (dconfig.SCREEN_WIDTH - dconfig.PANEL_WIDTH + 20, height))
         if (time // 24) % 7 == 0:   #Every week
-            screen.blit(font.render("EXAM SEASON TIME", True, dconfig.RED), (dconfig.SCREEN_WIDTH - dconfig.PANEL_WIDTH + 20, height + 50))
-            screen.blit(font2.render("Difficulty level: " + difficulty, True, dconfig.BLACK), (dconfig.SCREEN_WIDTH - dconfig.PANEL_WIDTH + 20, height + 80))
+            screen.blit(font.render("EXAM SEASON TIME", True, dconfig.RED), (dconfig.SCREEN_WIDTH - dconfig.PANEL_WIDTH + 20, height + 20))
+            screen.blit(font2.render('Difficulty level: ' + difficulty_level, True, dconfig.BLACK), (dconfig.SCREEN_WIDTH - dconfig.PANEL_WIDTH + 20, height + 50))
 
 
 

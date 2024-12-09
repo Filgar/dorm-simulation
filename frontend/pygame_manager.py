@@ -1,6 +1,5 @@
 import pygame
 import display_config as dconfig
-import time as ti
 
 from frontend.user_panel import UserPanel
 from core.elements.student import StudentState
@@ -79,12 +78,10 @@ class PygameManager:
                 pygame.draw.rect(self.screen, dconfig.BLACK, (col * dconfig.TILE_SIZE, row * dconfig.TILE_SIZE, dconfig.TILE_SIZE, dconfig.TILE_SIZE), 1)
 
     def draw(self, dormitory, time, difficulty):
-        t = ti.time()
         self.screen.fill(dconfig.BLACK)
         self.draw_dormitory(dormitory)
         self.user_panel.draw(self.screen, dormitory, time, difficulty)
         pygame.display.flip()
-        print(f"Drawing took {ti.time() - t} seconds")
 
 
     def handle_keydown(self, event, dormitory):

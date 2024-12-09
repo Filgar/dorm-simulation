@@ -21,3 +21,8 @@ class Dormitory:
     def select_room(self, room_number: int) -> None:
         if 0 <= room_number < len(self.floors[self.current_floor].rooms):
             self.selected_room = room_number
+
+    def clear_students_knowledge(self) -> None:
+        for floor in self.floors:
+            for student in floor.students:
+                student.knowledge = 0
