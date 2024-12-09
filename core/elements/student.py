@@ -5,8 +5,8 @@ import random
 import display_config as dconfig
 
 class Student:
-    def __init__(self, name: str, room: 'Room', learning_rate: float = random.random(), resting_rate: float = random.random(),
-                stamina_rate: float = random.random(), eagerness_to_party: float = random.random()):
+    def __init__(self, name: str, room: 'Room', learning_rate: float = None, resting_rate: float = None,
+                stamina_rate: float = None, eagerness_to_party: float = None):
         self.name: str = name
         self.native_room: 'Room' = room             # See PEP 484/forward references
         self.current_room: 'Room' = room
@@ -16,19 +16,22 @@ class Student:
         self.energy = 0.5
         self.fun = 0.5
 
-        self.base_learning_rate = learning_rate     # Base values - dependant on the student, never changes
-        self.base_resting_rate = resting_rate
-        self.stamina_rate = stamina_rate
+        get_rate = lambda rate: rate if rate is not None else max(0.05, random.gauss(0.5, 0.25))
 
-        self.learning_rate = learning_rate          # Dynamically affected by other agents
-        self.resting_rate = resting_rate
+        self.base_learning_rate = get_rate(learning_rate)     # Base values - dependant on the student, never changes
+        self.base_resting_rate = get_rate(resting_rate)
+        self.stamina_rate = get_rate(stamina_rate)
 
-        self.eagerness_to_party = eagerness_to_party
+        self.learning_rate = self.base_learning_rate          # Dynamically affected by other agents
+        self.resting_rate = self.base_resting_rate
+
+        self.eagerness_to_party = get_rate(eagerness_to_party)
 
         self.time_partying = 0
         self.time_learning = 0
         self.time_resting = 0
         self.party_overdose = 0
+        self.exam_sessions_survived = 0
 
 
 
@@ -38,12 +41,22 @@ class Student:
         room.set_bed_owner(self)
         room.set_desk_owner(self)
 
+        self.validate_values()
+        print(f"Student {self.learning_rate} created")
+
     def validate_values(self) -> None:
-        self.learning_rate = max(0, min(self.base_learning_rate, self.learning_rate))
-        self.resting_rate = max(0, min(self.base_resting_rate, self.resting_rate))
+        self.learning_rate = max(0.05, min(self.base_learning_rate, self.learning_rate))
+        self.resting_rate = max(0.05, min(self.base_resting_rate, self.resting_rate))
         self.energy = max(0, min(1, self.energy))
         self.knowledge = max(0, min(1, self.knowledge))
         self.fun = max(0, min(1, self.fun))
+
+
+    def get_older(self) -> None:
+        self.eagerness_to_party *= 0.9      # As the time goes, students are less eager to party, get tired faster, but posess more knowledge
+        self.stamina_rate *= 0.9
+        self.knowledge = self.exam_sessions_survived * 0.05
+
 
 
 

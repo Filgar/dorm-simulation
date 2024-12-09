@@ -65,7 +65,7 @@ class StateProcessor:
 
     def process_learning_state(self, student: Student):
         student.knowledge += lc.LEARN_BASE * student.fun + lc.LEARN_BONUS * student.learning_rate
-        student.energy -= lc.LEARN_ENERGY_LOSS_RATE + lc.LEARN_STAMINA_BASE * student.stamina_rate
+        student.energy -= lc.LEARN_ENERGY_BASE_LOSS + lc.LEARN_STAMINA_BASE * student.stamina_rate
         student.fun -= lc.LEARN_FUN_BASE_LOSS
 
         dice = random.random()

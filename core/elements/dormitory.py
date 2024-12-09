@@ -22,7 +22,17 @@ class Dormitory:
         if 0 <= room_number < len(self.floors[self.current_floor].rooms):
             self.selected_room = room_number
 
+    def finish_exam_session(self) -> None:
+        self.clear_students_knowledge()
+        self.pass_exams()
+
     def clear_students_knowledge(self) -> None:
         for floor in self.floors:
             for student in floor.get_active_students():
                 student.knowledge = 0
+
+    def pass_exams(self) -> None:
+        for floor in self.floors:
+            for student in floor.get_active_students():
+                student.exam_sessions_survived += 1
+                student.get_older()
