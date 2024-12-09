@@ -1,34 +1,44 @@
 from enum import Enum
 import pygame
+import random
 
 import display_config as dconfig
 
 class Student:
-    def __init__(self, name: str, room: 'Room', learned_ratio = 0, energy_ratio = 100): # See PEP 484/forward references
+    def __init__(self, name: str, room: 'Room', learning_rate: float = random.random(), resting_rate: float = random.random(),
+                stamina_rate: float = random.random(), eagerness_to_party: float = random.random()):
         self.name: str = name
-        self.native_room: 'Room' = room
+        self.native_room: 'Room' = room             # See PEP 484/forward references
         self.current_room: 'Room' = room
-        self.learned_ratio = learned_ratio
-        self.energy_ratio = energy_ratio
+
+        self.knowledge = 0
+        self.energy = 0.5
+
+        self.base_learning_rate = learning_rate     # Base values - dependant on the student, never changes
+        self.base_resting_rate = resting_rate
+        self.base_stamina_rate = stamina_rate
+
+        self.learning_rate = learning_rate          # Dynamically affected by other agents
+        self.stamina_rate = stamina_rate
+        self.resting_rate = resting_rate
+
+        self.eagerness_to_party = eagerness_to_party
+
+
         self.photo = None
         self.state: StudentState = StudentState.RESTING
 
         room.set_bed_owner(self)
         room.set_desk_owner(self)
-        self.update_photo()
 
-
-    def update_photo(self) -> None:
-        if self.state == StudentState.RESTING:
-            self.photo = pygame.image.load(dconfig.STUDENT_PHOTO_REST)
-        elif self.state == StudentState.PARTYING:
-            self.photo = pygame.image.load(dconfig.STUDENT_PHOTO_PARTY)
-        elif self.state == StudentState.SLEEPING:
-            self.photo = pygame.image.load(dconfig.STUDENT_PHOTO_LEARN)
-        else:
-            raise Exception("State of the student is unknown")
+    def validate_values(self) -> None:
+        self.learning_rate = max(0, min(self.base_learning_rate, self.learning_rate))
+        self.stamina_rate = max(0, min(self.base_stamina_rate, self.stamina_rate))
+        self.resting_rate = max(0, min(self.base_resting_rate, self.resting_rate))
+        self.energy = max(0, min(1, self.energy))
+        self.knowledge = max(0, min(1, self.knowledge))
 
 class StudentState(Enum):
     PARTYING = 0
     RESTING = 1
-    SLEEPING = 2
+    LEARNING = 2
