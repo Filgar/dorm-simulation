@@ -43,6 +43,8 @@ class Student:
         self.energy = max(0, min(1, self.energy))
         self.knowledge = max(0, min(1, self.knowledge))
 
+        
+
 class StudentState(Enum):
     PARTYING = 0
     RESTING = 1
