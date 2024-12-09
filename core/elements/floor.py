@@ -3,7 +3,7 @@ from typing import List
 import display_config as dconfig
 import config as config
 from core.elements.room import Room
-from core.elements.student import Student
+from core.elements.student import Student, StudentState
 
 class Floor:
     def __init__(self, level: int):
@@ -43,7 +43,6 @@ class Floor:
         walls = set()
         for room in self.rooms:
             x, y = room.x, room.y
-            # Add the walls of the room
             for i in range(dconfig.ROOM_WIDTH):
                 walls.add((y, x + i))  # Top wall
                 walls.add((y + dconfig.ROOM_HEIGHT - 1, x + i))  # Bottom wall
@@ -51,3 +50,39 @@ class Floor:
                 walls.add((y + j, x))  # Left wall
                 walls.add((y + j, x + dconfig.ROOM_WIDTH - 1))  # Right wall
         return walls
+    
+    
+    def get_students_in_room(self, room: Room) -> List[Student]:
+        return [s for s in self.students if s.current_room == room]
+    
+    def get_active_students(self) -> List[Student]:
+        return [s for s in self.students if not s.dropout]
+    
+    
+    def partying_neighbours_count(self, room: Room) -> bool:
+        count = 0
+        for neighbour in self.get_neighbouring_rooms(room):
+            count += len([s for s in self.get_students_in_room(neighbour) if s.state == StudentState.PARTYING])
+        return count
+    
+    def get_neighbouring_rooms(self, room: Room) -> List[Room]:
+        if room.number > config.ROOMS_PER_FLOOR // 2:
+            if room.number == config.ROOMS_PER_FLOOR // 2:
+                return [next(r for r in self.rooms if r.number == room.number + 1)]
+            elif room.number == config.ROOMS_PER_FLOOR - 1:
+                return [next(r for r in self.rooms if r.number == room.number - 1)]
+            else:
+                return [
+                    next(r for r in self.rooms if r.number == room.number - 1),
+                    next(r for r in self.rooms if r.number == room.number + 1)
+                ]
+        else:
+            if room.number == 0:
+                return [next(r for r in self.rooms if r.number == room.number + 1)]
+            elif room.number == config.ROOMS_PER_FLOOR // 2 - 1:
+                return [next(r for r in self.rooms if r.number == room.number - 1)]
+            else:
+                return [
+                    next(r for r in self.rooms if r.number == room.number - 1),
+                    next(r for r in self.rooms if r.number == room.number + 1)
+                ]

@@ -40,7 +40,7 @@ class PygameManager:
             self.draw_room(room)
             room.reset_positions()
 
-        for student in floor.students:
+        for student in floor.get_active_students():
             self.draw_student(student)
 
     def draw_student(self, student):

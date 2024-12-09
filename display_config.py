@@ -1,9 +1,13 @@
 # Colors
 LIGHT_BROWN = (181, 101, 29)
 LIGHT_GRAY = (200, 200, 200)
+DARK_GRAY = (144, 144, 144)
 WHITE = (255, 255, 255)
 RED = (255, 0, 0)
 BLACK = (0, 0, 0)
+BLUE = (0, 0, 255)
+GREEN = (0, 255, 0)
+ORANGE = (255, 165, 0)
 
 # Grid display
 TILE_SIZE = 20
@@ -19,6 +23,7 @@ STUDENT_PHOTO_PARTY = ASSETS_PATH + "stickerman_party.png"
 STUDENT_PHOTO_REST = ASSETS_PATH + "stickerman_rest.png"
 STUDENT_PHOTO_LEARN = ASSETS_PATH + "stickerman_learn.png"
 
+MEMORIAL_PHOTO = ASSETS_PATH + "rip1.jpg"
 # User Panel display
 PANEL_WIDTH = 300
 
