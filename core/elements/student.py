@@ -24,6 +24,11 @@ class Student:
 
         self.eagerness_to_party = eagerness_to_party
 
+        self.time_partying = 0
+        self.time_learning = 0
+        self.time_resting = 0
+
+
 
         self.photo = None
         self.state: StudentState = StudentState.RESTING

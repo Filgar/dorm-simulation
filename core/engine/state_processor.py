@@ -25,10 +25,13 @@ class StateProcessor:
     #Modifies knowledge, energy, state
     def process_state(self, student: Student):
         if student.state == StudentState.RESTING:
+            student.time_resting += 1
             self.process_resting_state(student)
         elif student.state == StudentState.PARTYING:
+            student.time_partying += 1
             self.process_partying_state(student)
         elif student.state == StudentState.LEARNING:
+            student.time_learning += 1
             self.process_learning_state(student)
         else:
             raise Exception("Student state not recognized")
