@@ -52,7 +52,16 @@ class UserPanel:
 
 
     def draw_time(self, screen, time, difficulty):
-        difficulty_level = 'Easy' if difficulty < 0.9 else 'Hard' if difficulty > 1.1 else 'Moderate'
+        if difficulty < 0.75:
+            difficulty_level = 'Very Easy'
+        elif difficulty < 0.9:
+            difficulty_level = 'Easy'
+        elif difficulty < 1.1:
+            difficulty_level = 'Moderate'
+        elif difficulty < 1.25:
+            difficulty_level = 'Hard'
+        else:
+            difficulty_level = 'Very Hard'
 
         font = pygame.font.SysFont("Arial", 24)
         font2 = pygame.font.SysFont("Arial", 20)
