@@ -16,15 +16,15 @@ class Student:
         self.energy = 0.5
         self.fun = 0.5
 
-        get_rate = lambda rate: rate if rate is not None else max(0.05, random.gauss(0.5, 0.25))
+        get_rate = lambda rate: rate if rate is not None else max(0.05, min(random.gauss(0.5, 0.25), 1))
 
         self.base_learning_rate = get_rate(learning_rate)     # Base values - dependant on the student, never changes
         self.base_resting_rate = get_rate(resting_rate)
         self.stamina_rate = get_rate(stamina_rate)
-
+        self.eagerness_to_party_base = get_rate(eagerness_to_party)
+                                           
         self.learning_rate = self.base_learning_rate          # Dynamically affected by other agents
         self.resting_rate = self.base_resting_rate
-
         self.eagerness_to_party = get_rate(eagerness_to_party)
 
         self.time_partying = 0
@@ -41,12 +41,12 @@ class Student:
         room.set_bed_owner(self)
         room.set_desk_owner(self)
 
-        self.validate_values()
-        print(f"Student {self.learning_rate} created")
+    def validate_rates(self) -> None:
+        self.learning_rate = max(0.05, min(1, self.learning_rate))
+        self.resting_rate = max(0.05, min(1, self.resting_rate))
+        self.eagerness_to_party = max(0.05, min(1, self.eagerness_to_party))
 
     def validate_values(self) -> None:
-        self.learning_rate = max(0.05, min(self.base_learning_rate, self.learning_rate))
-        self.resting_rate = max(0.05, min(self.base_resting_rate, self.resting_rate))
         self.energy = max(0, min(1, self.energy))
         self.knowledge = max(0, min(1, self.knowledge))
         self.fun = max(0, min(1, self.fun))
