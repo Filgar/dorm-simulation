@@ -6,7 +6,7 @@ import display_config as dconfig
 
 class Student:
     def __init__(self, name: str, room: 'Room', learning_rate: float = None, resting_rate: float = None,
-                stamina_rate: float = None, eagerness_to_party: float = None):
+                stamina_rate: float = None, eagerness_to_party: float = None, image_dir: str = None):
         self.name: str = name
         self.native_room: 'Room' = room             # See PEP 484/forward references
         self.current_room: 'Room' = room
@@ -16,7 +16,7 @@ class Student:
         self.energy = 0.5
         self.fun = 0.5
 
-        get_rate = lambda rate: rate if rate is not None else max(0.05, min(random.gauss(0.5, 0.25), 1))
+        get_rate = lambda rate: max(0.05, min(random.gauss(rate, 0.25), 1)) if rate is not None else max(0.05, min(random.gauss(0.5, 0.25), 1))
 
         self.base_learning_rate = get_rate(learning_rate)     # Base values - dependant on the student, never changes
         self.base_resting_rate = get_rate(resting_rate)
@@ -35,7 +35,7 @@ class Student:
 
 
 
-        self.photo = None
+        self.photo = image_dir
         self.state: StudentState = StudentState.RESTING
 
         room.set_bed_owner(self)

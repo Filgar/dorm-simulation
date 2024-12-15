@@ -4,6 +4,7 @@ import display_config as dconfig
 import config as config
 from core.elements.room import Room
 from core.elements.student import Student, StudentState
+import json
 
 class Floor:
     def __init__(self, level: int):
@@ -33,9 +34,31 @@ class Floor:
     
     def generate_students(self) -> List[Student]:
         students = []
+        students_json = self.parse_json()
+        already_generated_students = self.level * config.ROOMS_PER_FLOOR * 2
+
         for i, room in enumerate(self.rooms):
-            students.append(Student(f"Student1_room{i+1}_floor{self.level+1}", room))
-            students.append(Student(f"Student2_room{i+1}_floor{self.level+1}", room))
+            if len(students_json) > already_generated_students:
+                students.append(Student(students_json[already_generated_students]['student_name'], room,
+                                        learning_rate=students_json[already_generated_students]['learning_rate'],
+                                        resting_rate=students_json[already_generated_students]['resting_rate'],
+                                        stamina_rate=students_json[already_generated_students]['stamina_rate'],
+                                        eagerness_to_party=students_json[already_generated_students]['eagerness_to_party'],
+                                        image_dir=students_json[already_generated_students]['image_dir']))
+                already_generated_students += 1
+
+                students.append(Student(students_json[already_generated_students]['student_name'], room,
+                                        learning_rate=students_json[already_generated_students]['learning_rate'],
+                                        resting_rate=students_json[already_generated_students]['resting_rate'],
+                                        stamina_rate=students_json[already_generated_students]['stamina_rate'],
+                                        eagerness_to_party=students_json[already_generated_students]['eagerness_to_party'],
+                                        image_dir=students_json[already_generated_students]['image_dir'])
+                                if len(students_json) > already_generated_students
+                                else Student(f"Student2_room{i+1}_floor{self.level+1}", room))
+                already_generated_students += 1
+            else:
+                students.append(Student(f"Student1_room{i+1}_floor{self.level+1}", room))
+                students.append(Student(f"Student2_room{i+1}_floor{self.level+1}", room))
         return students
     
 
@@ -86,3 +109,11 @@ class Floor:
                     next(r for r in self.rooms if r.number == room.number - 1),
                     next(r for r in self.rooms if r.number == room.number + 1)
                 ]
+
+    def parse_json(self):
+        file_path = config.JSON_DIR
+
+        with open(file_path, 'r') as file:
+            students = json.load(file)
+
+        return students

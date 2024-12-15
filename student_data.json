@@ -1,0 +1,26 @@
+[
+    {
+        "student_name": "Filgar",
+        "learning_rate": 0.7,
+        "resting_rate": 0.8,
+        "stamina_rate": 0.6,
+        "eagerness_to_party": 0.8,
+        "image_dir": "Filgar.png"
+    },
+    {
+        "student_name": "TristanMN",
+        "learning_rate": 0.7,
+        "resting_rate": 0.8,
+        "stamina_rate": 0.6,
+        "eagerness_to_party": 0.8,
+        "image_dir": "TristanMN.png"
+    },
+    {
+        "student_name": "Matty Kresh",
+        "learning_rate": 0.7,
+        "resting_rate": 0.8,
+        "stamina_rate": 0.6,
+        "eagerness_to_party": 0.8,
+        "image_dir": "Matty_Kresh.png"
+    }
+]

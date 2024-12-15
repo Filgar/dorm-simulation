@@ -50,14 +50,17 @@ class PygameManager:
         self.screen.blit(student_img, (position.x * dconfig.TILE_SIZE, position.y * dconfig.TILE_SIZE))
     
     def get_student_photo(self, student):
-        if student.state == StudentState.RESTING:
-            return self.PHOTO_REST
-        elif student.state == StudentState.PARTYING:
-            return self.PHOTO_PARTY
-        elif student.state == StudentState.LEARNING:
-            return self.PHOTO_LEARN
+        if student.photo is not None:
+            return pygame.image.load(dconfig.ASSETS_PATH + student.photo)
         else:
-            raise Exception("Student state not recognized")
+            if student.state == StudentState.RESTING:
+                return self.PHOTO_REST
+            elif student.state == StudentState.PARTYING:
+                return self.PHOTO_PARTY
+            elif student.state == StudentState.LEARNING:
+                return self.PHOTO_LEARN
+            else:
+                raise Exception("Student state not recognized")
 
     def get_student_position(self, room, student):
         match student.state:

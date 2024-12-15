@@ -85,7 +85,7 @@ class UserPanel:
         students_in_room = floor.get_students_in_room(floor.rooms[dormitory.selected_room])
 
         top = 250
-        screen.blit(self.font20.render("Students in room:", True, dconfig.BLACK), (dconfig.SCREEN_WIDTH - dconfig.PANEL_WIDTH + 20, top))
+        screen.blit(self.font20.render(f"Students in room {dormitory.selected_room + 1}:", True, dconfig.BLACK), (dconfig.SCREEN_WIDTH - dconfig.PANEL_WIDTH + 20, top))
         top += 30
         for student in students_in_room: 
             if student.dropout:
