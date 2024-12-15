@@ -22,7 +22,7 @@ class Student:
         self.base_resting_rate = get_rate(resting_rate)
         self.stamina_rate = get_rate(stamina_rate)
         self.eagerness_to_party_base = get_rate(eagerness_to_party)
-                                           
+                                        
         self.learning_rate = self.base_learning_rate          # Dynamically affected by other agents
         self.resting_rate = self.base_resting_rate
         self.eagerness_to_party = get_rate(eagerness_to_party)

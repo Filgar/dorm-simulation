@@ -2,7 +2,6 @@ from typing import List
 
 from core.elements.floor import Floor
 from core.elements.room import Room
-import display_config as dconfig
 import config as config
 
 class Dormitory:

@@ -1,5 +1,6 @@
 import pygame
 import display_config as dconfig
+import config as config
 
 from frontend.user_panel import UserPanel
 from core.elements.student import StudentState
@@ -51,7 +52,7 @@ class PygameManager:
     
     def get_student_photo(self, student):
         if student.photo is not None:
-            return pygame.image.load(dconfig.ASSETS_PATH + student.photo)
+            return pygame.image.load(config.POPULATION_ASSETS_DIRECTORY + student.photo)
         else:
             if student.state == StudentState.RESTING:
                 return self.PHOTO_REST

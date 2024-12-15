@@ -111,7 +111,7 @@ class Floor:
                 ]
 
     def parse_json(self):
-        file_path = config.JSON_DIR
+        file_path = config.POPULATION_FILE
 
         with open(file_path, 'r') as file:
             students = json.load(file)
