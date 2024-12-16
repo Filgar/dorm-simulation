@@ -46,7 +46,7 @@ class PygameManager:
 
     def draw_student(self, student):
         room = student.current_room
-        student_img = pygame.transform.scale(self.get_student_photo(student), (dconfig.TILE_SIZE * 1.5, dconfig.TILE_SIZE * 1.5))
+        student_img = pygame.transform.scale(self.get_student_photo(student), (dconfig.TILE_SIZE * 1.8, dconfig.TILE_SIZE * 1.8))
         position = self.get_student_position(room, student)
         self.screen.blit(student_img, (position.x * dconfig.TILE_SIZE, position.y * dconfig.TILE_SIZE))
     

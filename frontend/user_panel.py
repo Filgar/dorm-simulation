@@ -82,7 +82,7 @@ class UserPanel:
     def draw_selected_room_panel(self, screen, dormitory):
         # Display stats for the selected room
         floor = dormitory.floors[dormitory.current_floor]
-        students_in_room = floor.get_students_in_room(floor.rooms[dormitory.selected_room])
+        students_in_room = floor.get_room_owners(floor.rooms[dormitory.selected_room])
 
         top = 250
         screen.blit(self.font20.render(f"Students in room {dormitory.selected_room + 1}:", True, dconfig.BLACK), (dconfig.SCREEN_WIDTH - dconfig.PANEL_WIDTH + 20, top))

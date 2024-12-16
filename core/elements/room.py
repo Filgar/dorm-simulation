@@ -19,7 +19,6 @@ class Room:
         self.x = x
         self.y = y
         self.number: int = number
-        self.party_ongoing = False
 
         if side=="LEFT":
             list_beds = [(x + 1, y + dconfig.ROOM_HEIGHT - 4), (x + dconfig.BED_WIDTH + 3, y + dconfig.ROOM_HEIGHT - 4)]

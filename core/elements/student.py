@@ -11,6 +11,7 @@ class Student:
         self.native_room: 'Room' = room             # See PEP 484/forward references
         self.current_room: 'Room' = room
         self.dropout = False
+        self.partied_recently = False
 
         self.knowledge = 0
         self.energy = 0.5
@@ -56,7 +57,12 @@ class Student:
         self.eagerness_to_party *= 0.9      # As the time goes, students are less eager to party, get tired faster, but posess more knowledge
         self.stamina_rate *= 0.9
         self.knowledge = self.exam_sessions_survived * 0.05
-
+    
+    def is_in_own_room(self) -> bool:
+        return self.current_room == self.native_room
+    
+    def travel_to_room(self, room: 'Room') -> None:
+        self.current_room = room
 
 
 

@@ -1,10 +1,11 @@
 from typing import List
+import json
+import numpy as np
 
 import display_config as dconfig
 import config as config
 from core.elements.room import Room
 from core.elements.student import Student, StudentState
-import json
 
 class Floor:
     def __init__(self, level: int):
@@ -34,7 +35,7 @@ class Floor:
     
     def generate_students(self) -> List[Student]:
         students = []
-        students_json = self.parse_json()
+        students_json = self.parse_population_json()
         already_generated_students = self.level * config.ROOMS_PER_FLOOR * 2
 
         for i, room in enumerate(self.rooms):
@@ -78,6 +79,9 @@ class Floor:
     def get_students_in_room(self, room: Room) -> List[Student]:
         return [s for s in self.students if s.current_room == room]
     
+    def get_room_owners(self, room: Room) -> List[Student]:
+        return [s for s in self.students if s.native_room == room]
+    
     def get_active_students(self) -> List[Student]:
         return [s for s in self.students if not s.dropout]
     
@@ -85,7 +89,7 @@ class Floor:
     def partying_neighbours_count(self, room: Room) -> bool:
         count = 0
         for neighbour in self.get_neighbouring_rooms(room):
-            count += len([s for s in self.get_students_in_room(neighbour) if s.state == StudentState.PARTYING])
+            count += self.room_partying_count(neighbour)
         return count
     
     def get_neighbouring_rooms(self, room: Room) -> List[Room]:
@@ -109,8 +113,22 @@ class Floor:
                     next(r for r in self.rooms if r.number == room.number - 1),
                     next(r for r in self.rooms if r.number == room.number + 1)
                 ]
+            
+    def find_partying_place(self) -> Room:
+        partying_rooms = [r for r in self.rooms if self.room_is_partying(r) and not self.room_partying_count(r) >= config.ROOM_PARTY_CAPACITY]
+        if len(partying_rooms) == 0:
+            return None
+        
+        weights = [self.room_partying_count(r)*24 for r in partying_rooms] #squared so hardly prefer bigger parties
+        return np.random.choice(partying_rooms, p=weights/np.sum(weights))
 
-    def parse_json(self):
+    def room_partying_count(self, room: Room) -> int:
+        return len([s for s in self.get_students_in_room(room) if s.state == StudentState.PARTYING])
+    
+    def room_is_partying(self, room: Room) -> int: # Returns number of students partying in the room
+        return self.room_partying_count(room) > 0
+    
+    def parse_population_json(self):
         file_path = config.POPULATION_FILE
 
         with open(file_path, 'r') as file:

@@ -1,6 +1,7 @@
 # Custom files
 population_data/*
 !population_data/example
+!population_data/the_office
 
 
 # Byte-compiled / optimized / DLL files

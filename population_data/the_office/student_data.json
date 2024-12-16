@@ -1,0 +1,139 @@
+[
+    {
+        "student_name": "Pam Beesly",
+        "learning_rate": 0.5,
+        "resting_rate": 0.5,
+        "stamina_rate": 0.5,
+        "eagerness_to_party": 0.5,
+        "image_dir": "pam.png"
+    },
+    {
+        "student_name": "Angela Martin",
+        "learning_rate": 0.6,
+        "resting_rate": 0.5,
+        "stamina_rate": 0.5,
+        "eagerness_to_party": 0.1,
+        "image_dir": "angela.png"
+    },
+
+    {
+        "student_name": "Jim Halpert",
+        "learning_rate": 0.5,
+        "resting_rate": 0.5,
+        "stamina_rate": 0.5,
+        "eagerness_to_party": 0.6,
+        "image_dir": "jim.png"
+    },
+    {
+        "student_name": "Dwight Schrute",
+        "learning_rate": 1.0,
+        "resting_rate": 0.5,
+        "stamina_rate": 0.75,
+        "eagerness_to_party": 0.4,
+        "image_dir": "dwight.png"
+    },
+
+    {
+        "student_name": "Michael Scott",
+        "learning_rate": 0.4,
+        "resting_rate": 0.5,
+        "stamina_rate": 0.5,
+        "eagerness_to_party": 0.7,
+        "image_dir": "michael.png"
+    },
+    {
+        "student_name": "Ryan Howard",
+        "learning_rate": 0.5,
+        "resting_rate": 0.5,
+        "stamina_rate": 0.5,
+        "eagerness_to_party": 0.5,
+        "image_dir": "ryan.png"
+    },
+
+    {
+        "student_name": "Kelly Kapoor",
+        "learning_rate": 0.5,
+        "resting_rate": 0.75,
+        "stamina_rate": 0.75,
+        "eagerness_to_party": 0.75,
+        "image_dir": "kelly.png"
+    },
+    {
+        "student_name": "Erin Hannon",
+        "learning_rate": 0.5,
+        "resting_rate": 0.5,
+        "stamina_rate": 0.5,
+        "eagerness_to_party": 0.5,
+        "image_dir": "erin.png"
+    },
+
+    {
+        "student_name": "Andy Bernard",
+        "learning_rate": 0.5,
+        "resting_rate": 0.5,
+        "stamina_rate": 0.5,
+        "eagerness_to_party": 0.75,
+        "image_dir": "andy.png"
+    },
+    {
+        "student_name": "Creed Bratton",
+        "learning_rate": 0.6,
+        "resting_rate": 1.0,
+        "stamina_rate": 0.7,
+        "eagerness_to_party": 0.5,
+        "image_dir": "creed.png"
+    },
+
+
+    {
+        "student_name": "Kevin Malone",
+        "learning_rate": 0.3,
+        "resting_rate": 0.5,
+        "stamina_rate": 0.5,
+        "eagerness_to_party": 0.5,
+        "image_dir": "kevin.png"
+    },
+    {
+        "student_name": "Meredith Palmer",
+        "learning_rate": 0.5,
+        "resting_rate": 0.5,
+        "stamina_rate": 0.75,
+        "eagerness_to_party": 0.8,
+        "image_dir": "meredith.png"
+    },
+
+
+    {
+        "student_name": "Stanley Hudson",
+        "learning_rate": 0.5,
+        "resting_rate": 0.5,
+        "stamina_rate": 0.5,
+        "eagerness_to_party": 0.2,
+        "image_dir": "stanley.png"
+    },
+    {
+        "student_name": "Oscar Martinez",
+        "learning_rate": 0.7,
+        "resting_rate": 0.5,
+        "stamina_rate": 0.5,
+        "eagerness_to_party": 0.5,
+        "image_dir": "oscar.png"
+    },
+
+    {
+        "student_name": "Phyllis Vance",
+        "learning_rate": 0.5,
+        "resting_rate": 0.5,
+        "stamina_rate": 0.5,
+        "eagerness_to_party": 0.5,
+        "image_dir": "phyllis.png"
+    },
+    {
+        "student_name": "Bob Vance",
+        "learning_rate": 0.5,
+        "resting_rate": 0.5,
+        "stamina_rate": 0.5,
+        "eagerness_to_party": 0.5,
+        "image_dir": "bob.png"
+    }
+]

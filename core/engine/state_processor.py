@@ -17,7 +17,8 @@ class StateProcessor:
         for floor in self.dormitory.floors:
             for student in floor.get_active_students():
                 self.adjust_rates(student, floor)
-                self.process_state(student)
+                self.process_state(student, floor)
+
                 if is_exam_season:
                     student.knowledge -= (1 / 24) / 2  * self.exam_difficulty # 50% knowledge modified by exam difficulty required to survive
                     if student.knowledge < 0:
@@ -25,34 +26,40 @@ class StateProcessor:
                 student.validate_values()
 
     #Modifies knowledge, energy, fun, state
-    def process_state(self, student: Student):
+    def process_state(self, student: Student, floor: Floor):
         if student.state == StudentState.RESTING:
             student.time_resting += 1
-            self.process_resting_state(student)
+            state = self.process_resting_state(student)
         elif student.state == StudentState.PARTYING:
             student.time_partying += 1
-            self.process_partying_state(student)
+            party_size = floor.room_partying_count(student.current_room)
+            state = self.process_partying_state(student, party_size)
         elif student.state == StudentState.LEARNING:
             student.time_learning += 1
-            self.process_learning_state(student)
+            state = self.process_learning_state(student)
         else:
             raise Exception("Student state not recognized")
+        if (state is not None):
+            self.switch_student_state(student, state, floor)
         
 
-    def process_resting_state(self, student: Student):
+    def process_resting_state(self, student: Student) -> StudentState:
         student.energy += lc.REST_BASE_GAIN + lc.REST_BONUS_GAIN * student.resting_rate
         student.fun -= lc.REST_FUN_LOSS_RATE
         
-        if student.energy > 0.7:
+        if student.energy > 0.75:
             dice = random.random()
             if dice < student.energy * ((1 - student.fun) / 10 + student.eagerness_to_party / 4):
-                student.state = StudentState.PARTYING
+                student.partied_recently = True
+                return StudentState.PARTYING
             elif dice < student.energy:
-                student.state = StudentState.LEARNING
+                student.partied_recently = False
+                return StudentState.LEARNING
+        return None
 
-    def process_partying_state(self, student: Student):
-        student.energy -= lc.PARTY_ENERGY_BASE_LOSS - lc.PARTY_STAMINA_BASE_GAIN * student.stamina_rate
-        student.fun += lc.PARTY_FUN_BASE_GAIN - lc.PARTY_FUN_GAIN_PENALTY * student.eagerness_to_party
+    def process_partying_state(self, student: Student, party_size: int) -> StudentState:
+        student.energy -= lc.PARTY_ENERGY_BASE_LOSS - lc.PARTY_STAMINA_BASE_GAIN * student.stamina_rate + party_size * lc.REST_PER_STUDENT_LOSS
+        student.fun += lc.PARTY_FUN_BASE_GAIN - lc.PARTY_FUN_GAIN_PENALTY * student.eagerness_to_party + party_size * lc.FUN_PER_STUDENT_GAIN
         
         dice = random.random()
         if student.energy < lc.PARTY_ENERGY_THRESHOLD and dice > lc.KEEP_PARTYING_BASE * student.energy + student.energy:
@@ -61,7 +68,10 @@ class StateProcessor:
                 student.learning_rate = 0.05
                 student.knowledge *= (1 - lc.PARTY_OVERDOSE_KNOWLEDGE_LOSS)
             student.eagerness_to_party = student.eagerness_to_party_base
-            student.state = StudentState.RESTING
+            return StudentState.RESTING
+        
+        return None
+
         
 
     def process_learning_state(self, student: Student):
@@ -71,12 +81,18 @@ class StateProcessor:
 
         dice = random.random()
         if student.energy < 0.5 and dice < 1 - student.energy:
-            student.state = StudentState.RESTING
-        elif dice < (1 - student.fun) + student.eagerness_to_party / 4:
-            student.state = StudentState.PARTYING
+            return StudentState.RESTING
+        elif dice < (1 - student.fun) + student.eagerness_to_party / 6:
+            student.partied_recently = True
+            return StudentState.PARTYING
+
+        return None
+
 
     #Modifies rates
     def adjust_rates(self, student: Student, floor: Floor):
+        self.apply_party_effects(student, floor)
+        
         if student.state == StudentState.RESTING:
             self.apply_neighbours_effects(student, floor)
             student.learning_rate += lc.LEARN_RATE_GAIN_REST_BASE + lc.LEARN_RATE_GAIN_REST_BONUS * student.base_resting_rate
@@ -95,3 +111,28 @@ class StateProcessor:
         student.learning_rate -= lc.NEIGHBOUR_PARTYING_LEARN_RATE_LOSS * partying_neighbours
         student.resting_rate -= lc.NEIGHBOUR_PARTYING_RESTING_RATE_LOSS * partying_neighbours
         student.validate_rates()
+
+    def apply_party_effects(self, student: Student, floor: Floor):
+        if not floor.room_is_partying(student.current_room) and not student.partied_recently:
+            student.eagerness_to_party = max(student.eagerness_to_party, student.eagerness_to_party_base * 0.75)
+            student.learning_rate = max(student.learning_rate, student.base_learning_rate * 0.75)
+            student.resting_rate = max(student.resting_rate, student.base_resting_rate* 0.75)
+            return
+
+        student.eagerness_to_party += student.eagerness_to_party * lc.PARTY_IN_ROOM_FACTOR
+        student.learning_rate -= student.learning_rate * lc.PARTY_IN_ROOM_FACTOR
+        student.resting_rate -= student.resting_rate * lc.PARTY_IN_ROOM_FACTOR
+        student.validate_rates()
+
+    def switch_student_state(self, student: Student, new_state: StudentState, floor: Floor):
+        student.state = new_state
+        if new_state == StudentState.RESTING:
+            student.travel_to_room(student.native_room)
+        elif new_state == StudentState.PARTYING:
+            room = floor.find_partying_place()
+            if room is not None:
+                student.travel_to_room(room)
+        elif new_state == StudentState.LEARNING:
+            student.travel_to_room(student.native_room)
+        else:
+            raise Exception("Student state not recognized")
