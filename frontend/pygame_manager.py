@@ -1,6 +1,6 @@
 import pygame
 import display_config as dconfig
-import config as config
+import random
 
 from frontend.user_panel import UserPanel
 from core.elements.student import StudentState
@@ -24,6 +24,8 @@ class PygameManager:
 
         self.user_panel = UserPanel()
 
+        self.tick = 30
+        self.room_number = 0
 
     def draw_room(self, room):
         for bx, by in room.beds:
@@ -46,13 +48,13 @@ class PygameManager:
 
     def draw_student(self, student):
         room = student.current_room
-        student_img = pygame.transform.scale(self.get_student_photo(student), (dconfig.TILE_SIZE * 1.8, dconfig.TILE_SIZE * 1.8))
+        student_img = pygame.transform.scale(self.get_student_photo(student), (dconfig.TILE_SIZE * 1.8, dconfig.TILE_SIZE * 1.5))
         position = self.get_student_position(room, student)
         self.screen.blit(student_img, (position.x * dconfig.TILE_SIZE, position.y * dconfig.TILE_SIZE))
     
     def get_student_photo(self, student):
         if student.photo is not None:
-            return pygame.image.load(config.POPULATION_ASSETS_DIRECTORY + student.photo)
+            return pygame.image.load(dconfig.ASSETS_PATH + student.photo)
         else:
             if student.state == StudentState.RESTING:
                 return self.PHOTO_REST
@@ -91,29 +93,50 @@ class PygameManager:
     def handle_keydown(self, event, dormitory):
 
         # TODO prettify this blasphemous code below
-        if event.key == pygame.K_ESCAPE:
-            return False
-        elif event.key == pygame.K_SPACE:
-            dormitory.next_turn()
-        elif event.key == pygame.K_RETURN:  # Confirm floor or room change
-            if self.user_panel.input_buffer.isdigit():
-                floor_number = int(self.user_panel.input_buffer) - 1  # Floors are 1-indexed for user
-                dormitory.switch_floor(floor_number)
-                self.user_panel.input_buffer = ""  # Clear the buffer
-            elif self.user_panel.room_input_buffer.isdigit():
-                room_number = int(self.user_panel.room_input_buffer) - 1  # Rooms are 1-indexed for user
-                dormitory.select_room(room_number)
-                self.user_panel.room_input_buffer = ""  # Clear the buffer
-        elif event.key == pygame.K_BACKSPACE:
-            if self.user_panel.input_rect.collidepoint(pygame.mouse.get_pos()):
-                self.user_panel.input_buffer = self.user_panel.input_buffer[:-1]
-            elif self.user_panel.room_input_rect.collidepoint(pygame.mouse.get_pos()):
-                self.user_panel.room_input_buffer = self.user_panel.room_input_buffer[:-1]
-        else:
-            if event.unicode.isdigit():
+        try:
+            if event.key == pygame.K_ESCAPE:
+                return False
+            elif event.key == pygame.K_SPACE:
+                dormitory.next_turn()
+            elif event.key == pygame.K_RETURN:  # Confirm floor or room change
+                if self.user_panel.input_buffer.isdigit():
+                    floor_number = int(self.user_panel.input_buffer) - 1  # Floors are 1-indexed for user
+                    dormitory.switch_floor(floor_number)
+                    self.user_panel.input_buffer = ""  # Clear the buffer
+                elif self.user_panel.room_input_buffer.isdigit():
+                    room_number = int(self.user_panel.room_input_buffer) - 1  # Rooms are 1-indexed for user
+                    dormitory.select_room(room_number)
+                    self.user_panel.room_input_buffer = ""  # Clear the buffer
+            elif event.key == pygame.K_BACKSPACE:
                 if self.user_panel.input_rect.collidepoint(pygame.mouse.get_pos()):
-                    self.user_panel.input_buffer += event.unicode
+                    self.user_panel.input_buffer = self.user_panel.input_buffer[:-1]
                 elif self.user_panel.room_input_rect.collidepoint(pygame.mouse.get_pos()):
-                    self.user_panel.room_input_buffer += event.unicode
+                    self.user_panel.room_input_buffer = self.user_panel.room_input_buffer[:-1]
+        except:
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_pos = pygame.mouse.get_pos()
+                if self.user_panel.input_r_arrow_speed.collidepoint(mouse_pos):
+                    self.tick = min(self.tick + 1, 60)
+                elif self.user_panel.input_l_arrow_speed.collidepoint(mouse_pos):
+                    self.tick = max(self.tick - 1, 1)
+                elif self.user_panel.input_r_arrow_floor.collidepoint(mouse_pos):
+                    floor_number = min(dormitory.current_floor + 1, 60)
+                    dormitory.switch_floor(floor_number)
+                elif self.user_panel.input_l_arrow_floor.collidepoint(mouse_pos):
+                    floor_number = max(dormitory.current_floor - 1, 0)
+                    dormitory.switch_floor(floor_number)
+                elif self.user_panel.input_r_arrow_room.collidepoint(mouse_pos):
+                    self.room_number = min(self.room_number + 1, 7)
+                    dormitory.select_room(self.room_number)
+                elif self.user_panel.input_l_arrow_room.collidepoint(mouse_pos):
+                    self.room_number = max(self.room_number - 1, 0)
+                    dormitory.select_room(self.room_number)
+
+        # else:
+        #     if event.unicode.isdigit():
+        #         if self.user_panel.input_rect.collidepoint(pygame.mouse.get_pos()):
+        #             self.user_panel.input_buffer += event.unicode
+        #         elif self.user_panel.room_input_rect.collidepoint(pygame.mouse.get_pos()):
+        #             self.user_panel.room_input_buffer += event.unicode
         return True
 

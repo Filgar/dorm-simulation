@@ -1,6 +1,7 @@
 import pygame
 
 import display_config as dconfig
+import config
 
 class UserPanel:
 
@@ -9,17 +10,20 @@ class UserPanel:
     def __init__(self):
         UserPanel.MEMORIAL_PHOTO = UserPanel.MEMORIAL_PHOTO.convert()
 
-        # Input buffer for typing floor numbers
-        self.input_buffer = ""
-        self.input_rect = pygame.Rect(dconfig.SCREEN_WIDTH - 120, 150, 100, 30)
 
-        self.room_input_buffer = ""
-        self.room_input_rect = pygame.Rect(dconfig.SCREEN_WIDTH - 120, 195, 100, 30)
+        # Input buffer for typing floor numbers
+        self.input_r_arrow_speed = pygame.Rect(dconfig.SCREEN_WIDTH - dconfig.PANEL_WIDTH + 280 - 26, 120 - 13, 26, 26)
+        self.input_l_arrow_speed = pygame.Rect(dconfig.SCREEN_WIDTH - dconfig.PANEL_WIDTH + 180, 120 - 13, 26, 26)
+
+        self.input_r_arrow_floor = pygame.Rect(dconfig.SCREEN_WIDTH - dconfig.PANEL_WIDTH + 280 - 26, 195 - 13, 26, 26)
+        self.input_l_arrow_floor= pygame.Rect(dconfig.SCREEN_WIDTH - dconfig.PANEL_WIDTH + 180, 195 - 13, 26, 26)
+
+        self.input_r_arrow_room = pygame.Rect(dconfig.SCREEN_WIDTH - dconfig.PANEL_WIDTH + 280 - 26, 260 - 13, 26, 26)
+        self.input_l_arrow_room = pygame.Rect(dconfig.SCREEN_WIDTH - dconfig.PANEL_WIDTH + 180, 260 - 13, 26, 26)
 
         self.font16 = pygame.font.SysFont("Arial", 16)
         self.font20 = pygame.font.SysFont("Arial", 20)
         self.font24 = pygame.font.SysFont("Arial", 24)
-
 
 
     def draw(self, screen, dormitory, time, difficulty):
@@ -36,26 +40,24 @@ class UserPanel:
 
 
     def draw_inputs(self, screen, dormitory):
-        text_surface = self.font24.render(f"Floor: {dormitory.current_floor + 1}", True, dconfig.BLACK)
-        screen.blit(text_surface, (dconfig.SCREEN_WIDTH - dconfig.PANEL_WIDTH + 20, 110))
+        def arrow(x, y, size, direction):
+            return [(x, y), (x + (-1 if direction == 0 else 1) * size, y - size // 2), (x + (-1 if direction == 0 else 1) * size, y + size // 2)]
+
+        text_surface = self.font24.render(f"Speed: ", True, dconfig.BLACK)
+        screen.blit(text_surface, (dconfig.SCREEN_WIDTH - dconfig.PANEL_WIDTH + 20, 105))
 
         # Draw the input field
-        pygame.draw.rect(screen, dconfig.WHITE, self.input_rect)
-        pygame.draw.rect(screen, dconfig.BLACK, self.input_rect, 2)
 
-        input_surface = self.font24.render(self.input_buffer, True, dconfig.BLACK)
-        input_desc = self.font24.render(f"Go to: ", True, dconfig.BLACK)
-        screen.blit(input_surface, (self.input_rect.x + 5, self.input_rect.y))
-        screen.blit(input_desc, (dconfig.SCREEN_WIDTH - dconfig.PANEL_WIDTH + 20, 150))
+        pygame.draw.polygon(screen, dconfig.BLACK, arrow(dconfig.SCREEN_WIDTH - dconfig.PANEL_WIDTH + 280, 120, 26, 0))
+        pygame.draw.polygon(screen, dconfig.BLACK, arrow(dconfig.SCREEN_WIDTH - dconfig.PANEL_WIDTH + 180, 120, 26, 1))
+        pygame.draw.polygon(screen, dconfig.BLACK, arrow(dconfig.SCREEN_WIDTH - dconfig.PANEL_WIDTH + 280, 195, 26, 0))
+        pygame.draw.polygon(screen, dconfig.BLACK, arrow(dconfig.SCREEN_WIDTH - dconfig.PANEL_WIDTH + 180, 195, 26, 1))
+        pygame.draw.polygon(screen, dconfig.BLACK, arrow(dconfig.SCREEN_WIDTH - dconfig.PANEL_WIDTH + 280, 260, 26, 0))
+        pygame.draw.polygon(screen, dconfig.BLACK, arrow(dconfig.SCREEN_WIDTH - dconfig.PANEL_WIDTH + 180, 260, 26, 1))
 
-        # Draw the room input field
-        pygame.draw.rect(screen, dconfig.WHITE, self.room_input_rect)
-        pygame.draw.rect(screen, dconfig.BLACK, self.room_input_rect, 2)
+        input_desc = self.font24.render(f"Floor: {dormitory.current_floor + 1}", True, dconfig.BLACK)
+        screen.blit(input_desc, (dconfig.SCREEN_WIDTH - dconfig.PANEL_WIDTH + 20, 180))
 
-        room_input_surface = self.font24.render(self.room_input_buffer, True, dconfig.BLACK)
-        room_input_desc = self.font24.render(f"Room: ", True, dconfig.BLACK)
-        screen.blit(room_input_surface, (self.room_input_rect.x + 5, self.room_input_rect.y))
-        screen.blit(room_input_desc, (dconfig.SCREEN_WIDTH - dconfig.PANEL_WIDTH + 20, 195))
     
 
 
@@ -88,7 +90,7 @@ class UserPanel:
         screen.blit(self.font20.render(f"Students in room {dormitory.selected_room + 1}:", True, dconfig.BLACK), (dconfig.SCREEN_WIDTH - dconfig.PANEL_WIDTH + 20, top))
         top += 30
         for student in students_in_room: 
-            if student.dropout:
+            if student.dropout and config.DEBUG == False:
                 top = self.draw_student_memorial(screen, student, top)
             else:
                 top = self.draw_student_details(screen, student, top)
@@ -102,23 +104,46 @@ class UserPanel:
         student_info = f"{student.name}"
         screen.blit(self.font20.render(student_info, True, dconfig.BLACK), (left, top))
         top += 30
-        
-        self.draw_student_progress_bar(screen, student.knowledge, dconfig.BLUE, (left, top), (x_size, 20), "Knowledge")
-        top += 50
-        self.draw_student_progress_bar(screen, student.fun, dconfig.ORANGE, (left, top), (x_size, 20), "Fun")
-        top += 50
-        self.draw_student_progress_bar(screen, student.energy, dconfig.GREEN, (left, top), (x_size, 20), "Energy")
-        top += 50
 
-        student_info = f"Current state: " + student.state.name
-        screen.blit(self.font20.render(student_info, True, dconfig.BLACK), (left, top))
-        
+        if config.DEBUG == False:
+            self.draw_student_progress_bar(screen, student.knowledge, dconfig.BLUE, (left, top), (x_size, 20), "Knowledge")
+            top += 50
+            self.draw_student_progress_bar(screen, student.fun, dconfig.ORANGE, (left, top), (x_size, 20), "Fun")
+            top += 50
+            self.draw_student_progress_bar(screen, student.energy, dconfig.GREEN, (left, top), (x_size, 20), "Energy")
+            top += 50
+            student_info = f"Current state: " + student.state.name
+            screen.blit(self.font20.render(student_info, True, dconfig.BLACK), (left, top))
+
+        elif config.DEBUG == True:
+            self.draw_student_progress_bar(screen, student.knowledge, dconfig.BLUE, (left, top), (x_size, 20), "Knowledge")
+            top += 25
+            self.draw_student_progress_bar(screen, student.fun, dconfig.ORANGE, (left, top), (x_size, 20), "Fun")
+            top += 25
+            self.draw_student_progress_bar(screen, student.energy, dconfig.GREEN, (left, top), (x_size, 20), "Energy")
+            top += 25
+            self.draw_student_progress_bar(screen, str(student.learning_rate) + " / " + str(student.base_learning_rate), dconfig.BLUE, (left, top), (x_size, 20), "Learning rate")
+            top += 25
+            self.draw_student_progress_bar(screen, str(student.eagerness_to_party) + " / " + str(student.eagerness_to_party_base), dconfig.ORANGE, (left, top), (x_size, 20), "Eagerness to party")
+            top += 25
+            self.draw_student_progress_bar(screen, str(student.resting_rate) + " / " + str(student.base_resting_rate), dconfig.GREEN, (left, top), (x_size, 20), "Resting rate")
+            top += 25
+            if student.dropout == False:
+                student_info = f"Current state: " + student.state.name
+            elif student.dropout == True:
+                student_info = f"Current state: DROPOUT"
+            screen.blit(self.font20.render(student_info, True, dconfig.BLACK), (left, top))
+
         return top + 60
 
     def draw_student_progress_bar(self, screen, value, color, position, size, text):
-        screen.blit(self.font16.render(text, True, dconfig.BLACK), (position[0], position[1]))
-        pygame.draw.rect(screen, dconfig.DARK_GRAY, (position[0], position[1] + 20, *size))
-        pygame.draw.rect(screen, color, (position[0], position[1] + 20, size[0] * value, size[1]))
+        if config.DEBUG == False:
+            screen.blit(self.font16.render(text, True, dconfig.BLACK), (position[0], position[1]))
+            pygame.draw.rect(screen, dconfig.DARK_GRAY, (position[0], position[1] + 20, *size))
+            pygame.draw.rect(screen, color, (position[0], position[1] + 20, size[0] * value, size[1]))
+        if config.DEBUG == True:
+            screen.blit(self.font16.render(text + ": " + str(value), True, dconfig.BLACK), (position[0], position[1]))
+
 
     def draw_student_memorial(self, screen, student, top) -> int:
         left = dconfig.SCREEN_WIDTH - dconfig.PANEL_WIDTH + 60
