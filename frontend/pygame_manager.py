@@ -3,6 +3,7 @@ import display_config as dconfig
 import random
 
 from frontend.user_panel import UserPanel
+from frontend.leaderboard import Leaderboard
 from core.elements.student import StudentState
 
 class PygameManager:
@@ -23,16 +24,17 @@ class PygameManager:
 
 
         self.user_panel = UserPanel()
+        self.leaderboard = Leaderboard()
 
         self.tick = 30
         self.room_number = 0
 
     def draw_room(self, room):
         for bx, by in room.beds:
-            pygame.draw.rect(self.screen, dconfig.WHITE, (bx * dconfig.TILE_SIZE, by * dconfig.TILE_SIZE, dconfig.TILE_SIZE * dconfig.BED_WIDTH, dconfig.TILE_SIZE * 3))
-            pygame.draw.rect(self.screen, dconfig.RED, (bx * dconfig.TILE_SIZE, (by+0.5) * dconfig.TILE_SIZE, dconfig.TILE_SIZE*1.5, dconfig.TILE_SIZE*2))
+            pygame.draw.rect(self.screen, dconfig.WHITE, (bx * dconfig.TILE_SIZE + dconfig.LEADERBOARD, by * dconfig.TILE_SIZE, dconfig.TILE_SIZE * dconfig.BED_WIDTH, dconfig.TILE_SIZE * 3))
+            pygame.draw.rect(self.screen, dconfig.RED, (bx * dconfig.TILE_SIZE + dconfig.LEADERBOARD, (by+0.5) * dconfig.TILE_SIZE, dconfig.TILE_SIZE*1.5, dconfig.TILE_SIZE*2))
         for dx, dy in room.desks:
-            pygame.draw.rect(self.screen, dconfig.BLACK, (dx * dconfig.TILE_SIZE, dy * dconfig.TILE_SIZE, dconfig.TILE_SIZE * 6, dconfig.TILE_SIZE * 2))
+            pygame.draw.rect(self.screen, dconfig.BLACK, (dx * dconfig.TILE_SIZE + dconfig.LEADERBOARD, dy * dconfig.TILE_SIZE, dconfig.TILE_SIZE * 6, dconfig.TILE_SIZE * 2))
     
 
     def draw_dormitory(self, dormitory):
@@ -50,7 +52,7 @@ class PygameManager:
         room = student.current_room
         student_img = pygame.transform.scale(self.get_student_photo(student), (dconfig.TILE_SIZE * 1.8, dconfig.TILE_SIZE * 1.5))
         position = self.get_student_position(room, student)
-        self.screen.blit(student_img, (position.x * dconfig.TILE_SIZE, position.y * dconfig.TILE_SIZE))
+        self.screen.blit(student_img, (position.x * dconfig.TILE_SIZE + dconfig.LEADERBOARD, position.y * dconfig.TILE_SIZE))
     
     def get_student_photo(self, student):
         if student.photo is not None:
@@ -80,13 +82,14 @@ class PygameManager:
         for row in range(dconfig.ROWS):
             for col in range(dconfig.COLS):
                 color = dconfig.LIGHT_BROWN if (row, col) not in floor.room_walls() else dconfig.LIGHT_GRAY
-                pygame.draw.rect(self.screen, color, (col * dconfig.TILE_SIZE, row * dconfig.TILE_SIZE, dconfig.TILE_SIZE, dconfig.TILE_SIZE))
-                pygame.draw.rect(self.screen, dconfig.BLACK, (col * dconfig.TILE_SIZE, row * dconfig.TILE_SIZE, dconfig.TILE_SIZE, dconfig.TILE_SIZE), 1)
+                pygame.draw.rect(self.screen, color, (col * dconfig.TILE_SIZE + dconfig.LEADERBOARD, row * dconfig.TILE_SIZE, dconfig.TILE_SIZE, dconfig.TILE_SIZE))
+                pygame.draw.rect(self.screen, dconfig.BLACK, (col * dconfig.TILE_SIZE + dconfig.LEADERBOARD, row * dconfig.TILE_SIZE, dconfig.TILE_SIZE, dconfig.TILE_SIZE), 1)
 
     def draw(self, dormitory, time, difficulty):
         self.screen.fill(dconfig.BLACK)
         self.draw_dormitory(dormitory)
         self.user_panel.draw(self.screen, dormitory, time, difficulty)
+        self.leaderboard.draw(self.screen, dormitory)
         pygame.display.flip()
 
 
@@ -99,19 +102,21 @@ class PygameManager:
             elif event.key == pygame.K_SPACE:
                 dormitory.next_turn()
             elif event.key == pygame.K_RETURN:  # Confirm floor or room change
-                if self.user_panel.input_buffer.isdigit():
-                    floor_number = int(self.user_panel.input_buffer) - 1  # Floors are 1-indexed for user
-                    dormitory.switch_floor(floor_number)
-                    self.user_panel.input_buffer = ""  # Clear the buffer
-                elif self.user_panel.room_input_buffer.isdigit():
-                    room_number = int(self.user_panel.room_input_buffer) - 1  # Rooms are 1-indexed for user
-                    dormitory.select_room(room_number)
-                    self.user_panel.room_input_buffer = ""  # Clear the buffer
+                # if self.user_panel.input_buffer.isdigit():
+                #     floor_number = int(self.user_panel.input_buffer) - 1  # Floors are 1-indexed for user
+                #     dormitory.switch_floor(floor_number)
+                #     self.user_panel.input_buffer = ""  # Clear the buffer
+                # elif self.user_panel.room_input_buffer.isdigit():
+                #     room_number = int(self.user_panel.room_input_buffer) - 1  # Rooms are 1-indexed for user
+                #     dormitory.select_room(room_number)
+                #     self.user_panel.room_input_buffer = ""  # Clear the buffer
+                pass
             elif event.key == pygame.K_BACKSPACE:
-                if self.user_panel.input_rect.collidepoint(pygame.mouse.get_pos()):
-                    self.user_panel.input_buffer = self.user_panel.input_buffer[:-1]
-                elif self.user_panel.room_input_rect.collidepoint(pygame.mouse.get_pos()):
-                    self.user_panel.room_input_buffer = self.user_panel.room_input_buffer[:-1]
+                # if self.user_panel.input_rect.collidepoint(pygame.mouse.get_pos()):
+                #     self.user_panel.input_buffer = self.user_panel.input_buffer[:-1]
+                # elif self.user_panel.room_input_rect.collidepoint(pygame.mouse.get_pos()):
+                #     self.user_panel.room_input_buffer = self.user_panel.room_input_buffer[:-1]
+                pass
         except:
             if event.type == pygame.MOUSEBUTTONDOWN:
                 mouse_pos = pygame.mouse.get_pos()
@@ -131,6 +136,16 @@ class PygameManager:
                 elif self.user_panel.input_l_arrow_room.collidepoint(mouse_pos):
                     self.room_number = max(self.room_number - 1, 0)
                     dormitory.select_room(self.room_number)
+                elif self.leaderboard.r_arrow_leaderboard.collidepoint(mouse_pos):
+                    if self.leaderboard.type == 4:
+                        self.leaderboard.type = 0
+                    else:
+                        self.leaderboard.type += 1
+                elif self.leaderboard.l_arrow_leaderboard.collidepoint(mouse_pos):
+                    if self.leaderboard.type == 0:
+                        self.leaderboard.type = 4
+                    else:
+                        self.leaderboard.type -= 1
 
         # else:
         #     if event.unicode.isdigit():

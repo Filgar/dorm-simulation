@@ -116,17 +116,17 @@ class UserPanel:
             screen.blit(self.font20.render(student_info, True, dconfig.BLACK), (left, top))
 
         elif config.DEBUG == True:
-            self.draw_student_progress_bar(screen, student.knowledge, dconfig.BLUE, (left, top), (x_size, 20), "Knowledge")
+            self.draw_student_progress_bar(screen, round(student.knowledge, 3), dconfig.BLUE, (left, top), (x_size, 20), "Knowledge")
             top += 25
-            self.draw_student_progress_bar(screen, student.fun, dconfig.ORANGE, (left, top), (x_size, 20), "Fun")
+            self.draw_student_progress_bar(screen, round(student.fun, 3), dconfig.ORANGE, (left, top), (x_size, 20), "Fun")
             top += 25
-            self.draw_student_progress_bar(screen, student.energy, dconfig.GREEN, (left, top), (x_size, 20), "Energy")
+            self.draw_student_progress_bar(screen, round(student.energy, 3), dconfig.GREEN, (left, top), (x_size, 20), "Energy")
             top += 25
-            self.draw_student_progress_bar(screen, str(student.learning_rate) + " / " + str(student.base_learning_rate), dconfig.BLUE, (left, top), (x_size, 20), "Learning rate")
+            self.draw_student_progress_bar(screen, str(round(student.learning_rate, 3)) + " / " + str(round(student.base_learning_rate, 3)), dconfig.BLUE, (left, top), (x_size, 20), "Learning rate")
             top += 25
-            self.draw_student_progress_bar(screen, str(student.eagerness_to_party) + " / " + str(student.eagerness_to_party_base), dconfig.ORANGE, (left, top), (x_size, 20), "Eagerness to party")
+            self.draw_student_progress_bar(screen, str(round(student.eagerness_to_party, 3)) + " / " + str(round(student.eagerness_to_party_base, 3)), dconfig.ORANGE, (left, top), (x_size, 20), "Eagerness to party")
             top += 25
-            self.draw_student_progress_bar(screen, str(student.resting_rate) + " / " + str(student.base_resting_rate), dconfig.GREEN, (left, top), (x_size, 20), "Resting rate")
+            self.draw_student_progress_bar(screen, str(round(student.resting_rate, 3)) + " / " + str(round(student.base_resting_rate, 3)), dconfig.GREEN, (left, top), (x_size, 20), "Resting rate")
             top += 25
             if student.dropout == False:
                 student_info = f"Current state: " + student.state.name

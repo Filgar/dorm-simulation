@@ -13,6 +13,9 @@ class Floor:
         self.rooms: List[Room] = self.generate_rooms()
         self.students: List[Student] = self.generate_students()
 
+    def __iter__(self):
+        return iter(self.students)
+
     def generate_rooms(self) -> List[Student]:
         x, y = 0, 0  # Start room placement
         rooms_left = 0
