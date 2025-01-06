@@ -21,9 +21,9 @@ class Leaderboard:
         def arrow(x, y, size, direction):
             return [(x, y), (x + (-1 if direction == 0 else 1) * size, y - size // 2), (x + (-1 if direction == 0 else 1) * size, y + size // 2)]
 
-        pygame.draw.polygon(screen, dconfig.BLACK, arrow(50, 60, 26, 1))
-        pygame.draw.polygon(screen, dconfig.BLACK, arrow(250, 60, 26, 0))
-        screen.blit(self.font20.render(self.activities[self.page.value], True, dconfig.BLACK),(100, 60 - 13))
+        pygame.draw.polygon(screen, dconfig.BLACK, arrow(35, 60, 26, 1))
+        pygame.draw.polygon(screen, dconfig.BLACK, arrow(265, 60, 26, 0))
+        screen.blit(self.font20.render(self.activities[self.page.value], True, dconfig.BLACK),(95, 60 - 13))
 
     def draw_stats(self, screen, dormitory):
         floor = dormitory.floors[dormitory.current_floor]
@@ -51,7 +51,8 @@ class Leaderboard:
         top += 35
 
         for i, student in enumerate(leaderboard):
-            screen.blit(self.font20.render(f"{i+1}. {student.name + (' [*]' if student.dropout else "")}", True, dconfig.BLACK), (10, top + i * 35))
+            record = f"{i+1}.{" " if i + 1 > 9 else "    "}{student.name + (' [*]' if student.dropout else "")}"
+            screen.blit(self.font20.render(record, True, dconfig.BLACK), (10, top + i * 35))
             screen.blit(self.font20.render(str(values[i]), True, dconfig.BLACK), (240, top + i * 35))
     
     def switch_page(self, direction):
