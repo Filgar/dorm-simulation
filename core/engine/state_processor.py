@@ -64,10 +64,10 @@ class StateProcessor:
         dice = random.random()
         if student.energy < lc.PARTY_ENERGY_THRESHOLD and dice > lc.KEEP_PARTYING_BASE * student.energy + student.energy:
             if student.energy <= 0:
-                student.party_overdose += 1
+                student.faints += 1
                 student.learning_rate = 0.05
-                student.knowledge *= (1 - lc.PARTY_OVERDOSE_KNOWLEDGE_LOSS)
-            student.eagerness_to_party = student.eagerness_to_party_base
+                student.knowledge *= (1 - lc.FAINT_KNOWLEDGE_LOSS)
+            student.eagerness_to_party = 0
             return StudentState.RESTING
         
         return None
@@ -76,7 +76,7 @@ class StateProcessor:
 
     def process_learning_state(self, student: Student):
         student.knowledge += (lc.LEARN_BASE + lc.LEARN_BONUS * student.learning_rate) * student.fun
-        student.energy -= lc.LEARN_ENERGY_BASE_LOSS + lc.LEARN_STAMINA_BASE * student.stamina_rate
+        student.energy -= lc.LEARN_ENERGY_BASE_LOSS + lc.LEARN_STAMINA_BASE_GAIN * student.stamina_rate
         student.fun -= lc.LEARN_FUN_BASE_LOSS
 
         dice = random.random()
@@ -95,14 +95,17 @@ class StateProcessor:
         
         if student.state == StudentState.RESTING:
             self.apply_neighbours_effects(student, floor)
-            student.learning_rate += lc.LEARN_RATE_GAIN_REST_BASE + lc.LEARN_RATE_GAIN_REST_BONUS * student.base_resting_rate
+            student.learning_rate += lc.LEARN_RATE_GAIN_REST_BASE + lc.LEARN_RATE_GAIN_REST_BONUS * student.base_learning_rate
+            student.resting_rate += lc.REST_RATE_GAIN_REST_BASE + lc.REST_RATE_GAIN_REST_BONUS * student.base_resting_rate
         elif student.state == StudentState.PARTYING:
             student.learning_rate -= lc.LEARN_RATE_LOSS_PARTY_BASE
         elif student.state == StudentState.LEARNING:
             self.apply_neighbours_effects(student, floor)
             student.learning_rate -= lc.LEARN_RATE_LOSS_LEARN_BASE + lc.LEARN_RATE_LOSS_LEARN_BONUS * student.base_resting_rate
+            student.eagerness_to_party += lc.EAGERNESS_TO_PARTY_LEARN_GAIN * student.eagerness_to_party_base
         else:
             raise Exception("Student state not recognized")
+        student.validate_rates()
         
     def apply_neighbours_effects(self, student: Student, floor: Floor):
         partying_neighbours = floor.partying_neighbours_count(student.current_room)
@@ -113,15 +116,15 @@ class StateProcessor:
         student.validate_rates()
 
     def apply_party_effects(self, student: Student, floor: Floor):
-        if not floor.room_is_partying(student.current_room) and not student.partied_recently:
-            student.eagerness_to_party = max(student.eagerness_to_party, student.eagerness_to_party_base * 0.75)
-            student.learning_rate = max(student.learning_rate, student.base_learning_rate * 0.75)
-            student.resting_rate = max(student.resting_rate, student.base_resting_rate* 0.75)
+        if not floor.room_is_partying(student.current_room):       # Restore rates partially once party in room stops
+            if not student.partied_recently:
+                student.learning_rate = max(student.learning_rate, student.base_learning_rate * 0.5)
+                student.resting_rate = max(student.resting_rate, student.base_resting_rate * 0.5)
             return
 
-        student.eagerness_to_party += student.eagerness_to_party * lc.PARTY_IN_ROOM_FACTOR
-        student.learning_rate -= student.learning_rate * lc.PARTY_IN_ROOM_FACTOR
-        student.resting_rate -= student.resting_rate * lc.PARTY_IN_ROOM_FACTOR
+        student.eagerness_to_party *= 1 + lc.PARTY_IN_ROOM_FACTOR
+        student.learning_rate *= lc.PARTY_IN_ROOM_FACTOR
+        student.resting_rate *= lc.PARTY_IN_ROOM_FACTOR
         student.validate_rates()
 
     def switch_student_state(self, student: Student, new_state: StudentState, floor: Floor):

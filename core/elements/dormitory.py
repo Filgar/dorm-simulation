@@ -18,7 +18,7 @@ class Dormitory:
             self.select_room(0)
 
     def select_room(self, room_number: int) -> None:
-        if 0 < room_number < len(self.floors[self.current_floor].rooms):
+        if 0 <= room_number < len(self.floors[self.current_floor].rooms):
             self.selected_room = room_number
 
     def finish_exam_session(self) -> None:

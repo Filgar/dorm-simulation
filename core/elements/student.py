@@ -26,12 +26,12 @@ class Student:
                                         
         self.learning_rate = self.base_learning_rate          # Dynamically affected by other agents
         self.resting_rate = self.base_resting_rate
-        self.eagerness_to_party = get_rate(eagerness_to_party)
+        self.eagerness_to_party = self.eagerness_to_party_base
 
         self.time_partying = 0
         self.time_learning = 0
         self.time_resting = 0
-        self.party_overdose = 0
+        self.faints = 0
         self.exam_sessions_survived = 0
 
 

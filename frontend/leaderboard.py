@@ -39,8 +39,8 @@ class Leaderboard:
                 leaderboard = sorted(floor.students, key=lambda student: student.time_resting, reverse=True)
                 values = [student.time_resting for student in leaderboard]
             case LeaderboardPage.FAINTS:
-                leaderboard = sorted(floor.students, key=lambda student: student.party_overdose, reverse=True)
-                values = [student.party_overdose for student in leaderboard]
+                leaderboard = sorted(floor.students, key=lambda student: student.faints, reverse=True)
+                values = [student.faints for student in leaderboard]
             case LeaderboardPage.EXAMS_PASSED:
                 leaderboard = sorted(floor.students, key=lambda student: student.exam_sessions_survived, reverse=True)
                 values = [student.exam_sessions_survived for student in leaderboard]
