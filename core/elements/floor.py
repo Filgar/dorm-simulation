@@ -58,11 +58,11 @@ class Floor:
                                         eagerness_to_party=students_json[already_generated_students]['eagerness_to_party'],
                                         image_dir=students_json[already_generated_students]['image_dir'])
                                 if len(students_json) > already_generated_students
-                                else Student(f"Student2_room{i+1}_floor{self.level+1}", room))
+                                else Student(f"Student2_r{i+1}_f{self.level+1}", room))
                 already_generated_students += 1
             else:
-                students.append(Student(f"Student1_room{i+1}_floor{self.level+1}", room))
-                students.append(Student(f"Student2_room{i+1}_floor{self.level+1}", room))
+                students.append(Student(f"Student1_r{i+1}_f{self.level+1}", room))
+                students.append(Student(f"Student2_r{i+1}_f{self.level+1}", room))
         return students
     
 

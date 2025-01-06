@@ -75,7 +75,7 @@ class UserPanel:
 
     
     def update_tick(self, change: int) -> int:
-        self.speed_label = max(min(5 * ((self.speed_label // 5 + 1 * change)), 60), 1)
+        self.speed_label = max(min(2 * ((self.speed_label // 2 + 1 * change)), 32), 1)
         return self.speed_label
 
     def draw_time(self, screen, time, difficulty):

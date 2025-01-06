@@ -49,8 +49,9 @@ class StateProcessor:
         
         if student.energy > 0.75:
             dice = random.random()
-            if dice < student.energy * ((1 - student.fun) / 10 + student.eagerness_to_party / 4):
+            if dice < student.energy * ((1 - student.fun) / 5 + student.eagerness_to_party / 8):
                 student.partied_recently = True
+                student.parties_attended += 1
                 return StudentState.PARTYING
             elif dice < student.energy:
                 student.partied_recently = False
@@ -84,6 +85,7 @@ class StateProcessor:
             return StudentState.RESTING
         elif dice < (1 - student.fun) + student.eagerness_to_party / 6:
             student.partied_recently = True
+            student.parties_attended += 1
             return StudentState.PARTYING
 
         return None
@@ -102,7 +104,7 @@ class StateProcessor:
         elif student.state == StudentState.LEARNING:
             self.apply_neighbours_effects(student, floor)
             student.learning_rate -= lc.LEARN_RATE_LOSS_LEARN_BASE + lc.LEARN_RATE_LOSS_LEARN_BONUS * student.base_resting_rate
-            student.eagerness_to_party += lc.EAGERNESS_TO_PARTY_LEARN_GAIN * student.eagerness_to_party_base
+            student.eagerness_to_party += lc.EAGERNESS_TO_PARTY_LEARN_GAIN_BONUS * student.eagerness_to_party_base
         else:
             raise Exception("Student state not recognized")
         student.validate_rates()
@@ -110,8 +112,9 @@ class StateProcessor:
     def apply_neighbours_effects(self, student: Student, floor: Floor):
         partying_neighbours = floor.partying_neighbours_count(student.current_room)
 
-        student.eagerness_to_party += lc.NEIGHBOUR_PARTYING_PARTY_EAGERNESS_GAIN * partying_neighbours
-        student.learning_rate -= lc.NEIGHBOUR_PARTYING_LEARN_RATE_LOSS * partying_neighbours
+        if student.state == StudentState.LEARNING:
+            student.eagerness_to_party += lc.NEIGHBOUR_PARTYING_PARTY_EAGERNESS_GAIN * partying_neighbours
+            student.learning_rate -= lc.NEIGHBOUR_PARTYING_LEARN_RATE_LOSS * partying_neighbours
         student.resting_rate -= lc.NEIGHBOUR_PARTYING_RESTING_RATE_LOSS * partying_neighbours
         student.validate_rates()
 

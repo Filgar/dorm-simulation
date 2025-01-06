@@ -33,6 +33,7 @@ class Student:
         self.time_resting = 0
         self.faints = 0
         self.exam_sessions_survived = 0
+        self.parties_attended = 0
 
 
 

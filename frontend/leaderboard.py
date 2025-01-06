@@ -9,7 +9,6 @@ class Leaderboard:
         self.l_arrow_leaderboard = pygame.Rect(50, 60 - 13, 26, 26)
         self.r_arrow_leaderboard = pygame.Rect(250 - 26, 60 - 13, 26, 26)
         self.page: LeaderboardPage = LeaderboardPage.PARTYING_TIME
-        self.activities: list[str] = ["Partying time", "Learning time", "Resting time", "Faints count", "Exams passed"]
 
     def draw(self, screen, dormitory):
         pygame.draw.rect(screen, dconfig.LIGHT_GRAY, (0, 0, dconfig.PANEL_WIDTH, dconfig.SCREEN_HEIGHT))
@@ -23,7 +22,10 @@ class Leaderboard:
 
         pygame.draw.polygon(screen, dconfig.BLACK, arrow(35, 60, 26, 1))
         pygame.draw.polygon(screen, dconfig.BLACK, arrow(265, 60, 26, 0))
-        screen.blit(self.font20.render(self.activities[self.page.value], True, dconfig.BLACK),(95, 60 - 13))
+
+        x = 95 if not self.page is LeaderboardPage.PARTIES_ATTENDED else 80         #TODO ugly
+
+        screen.blit(self.font20.render(self.get_activity_name(), True, dconfig.BLACK),(x, 50))
 
     def draw_stats(self, screen, dormitory):
         floor = dormitory.floors[dormitory.current_floor]
@@ -44,6 +46,9 @@ class Leaderboard:
             case LeaderboardPage.EXAMS_PASSED:
                 leaderboard = sorted(floor.students, key=lambda student: student.exam_sessions_survived, reverse=True)
                 values = [student.exam_sessions_survived for student in leaderboard]
+            case LeaderboardPage.PARTIES_ATTENDED:
+                leaderboard = sorted(floor.students, key=lambda student: student.parties_attended, reverse=True)
+                values = [student.parties_attended for student in leaderboard]
 
         top = 130
         screen.blit(self.font20.render(f"Student name", True, dconfig.BLACK),(35, top))
@@ -58,10 +63,26 @@ class Leaderboard:
     def switch_page(self, direction):
         self.page = LeaderboardPage((self.page.value + direction) % len(LeaderboardPage))
 
+    def get_activity_name(self):
+        match self.page:
+            case LeaderboardPage.PARTYING_TIME:
+                return "Partying time"
+            case LeaderboardPage.LEARNING_TIME:
+                return "Learning time"
+            case LeaderboardPage.RESTING_TIME:
+                return "Resting time"
+            case LeaderboardPage.FAINTS:
+                return "Faints count"
+            case LeaderboardPage.EXAMS_PASSED:
+                return "Exams passed"
+            case LeaderboardPage.PARTIES_ATTENDED:
+                return "Parties attended"
+
 
 class LeaderboardPage(Enum):
     PARTYING_TIME = 0
-    RESTING_TIME = 1
-    LEARNING_TIME = 2
+    LEARNING_TIME = 1
+    RESTING_TIME = 2
     FAINTS = 3
     EXAMS_PASSED = 4
+    PARTIES_ATTENDED = 5
