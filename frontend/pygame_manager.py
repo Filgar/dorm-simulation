@@ -1,7 +1,8 @@
 import pygame
-import display_config as dconfig
 import random
 
+import display_config as dconfig
+import config as config
 from frontend.user_panel import UserPanel
 from frontend.leaderboard import Leaderboard
 from core.elements.student import StudentState
@@ -12,7 +13,7 @@ class PygameManager:
     PHOTO_PARTY = pygame.image.load(dconfig.STUDENT_PHOTO_PARTY)
     PHOTO_LEARN = pygame.image.load(dconfig.STUDENT_PHOTO_LEARN)
 
-    def __init__(self):
+    def __init__(self, initial_tick):
         pygame.init()
 
         self.screen = pygame.display.set_mode((dconfig.SCREEN_WIDTH, dconfig.SCREEN_HEIGHT))
@@ -23,11 +24,10 @@ class PygameManager:
         PygameManager.PHOTO_LEARN = PygameManager.PHOTO_LEARN.convert()
 
 
-        self.user_panel = UserPanel()
+        self.user_panel = UserPanel(initial_tick)
         self.leaderboard = Leaderboard()
 
-        self.tick = 30
-        self.room_number = 0
+        self.tick = initial_tick
 
     def draw_room(self, room):
         for bx, by in room.beds:
@@ -56,7 +56,7 @@ class PygameManager:
     
     def get_student_photo(self, student):
         if student.photo is not None:
-            return pygame.image.load(dconfig.ASSETS_PATH + student.photo)
+            return pygame.image.load(config.POPULATION_ASSETS_DIRECTORY + student.photo)
         else:
             if student.state == StudentState.RESTING:
                 return self.PHOTO_REST
@@ -94,64 +94,23 @@ class PygameManager:
 
 
     def handle_keydown(self, event, dormitory):
-
-        # TODO prettify this blasphemous code below
-        try:
-            if event.key == pygame.K_ESCAPE:
-                return False
-            elif event.key == pygame.K_SPACE:
-                dormitory.next_turn()
-            elif event.key == pygame.K_RETURN:  # Confirm floor or room change
-                # if self.user_panel.input_buffer.isdigit():
-                #     floor_number = int(self.user_panel.input_buffer) - 1  # Floors are 1-indexed for user
-                #     dormitory.switch_floor(floor_number)
-                #     self.user_panel.input_buffer = ""  # Clear the buffer
-                # elif self.user_panel.room_input_buffer.isdigit():
-                #     room_number = int(self.user_panel.room_input_buffer) - 1  # Rooms are 1-indexed for user
-                #     dormitory.select_room(room_number)
-                #     self.user_panel.room_input_buffer = ""  # Clear the buffer
-                pass
-            elif event.key == pygame.K_BACKSPACE:
-                # if self.user_panel.input_rect.collidepoint(pygame.mouse.get_pos()):
-                #     self.user_panel.input_buffer = self.user_panel.input_buffer[:-1]
-                # elif self.user_panel.room_input_rect.collidepoint(pygame.mouse.get_pos()):
-                #     self.user_panel.room_input_buffer = self.user_panel.room_input_buffer[:-1]
-                pass
-        except:
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                mouse_pos = pygame.mouse.get_pos()
-                if self.user_panel.input_r_arrow_speed.collidepoint(mouse_pos):
-                    self.tick = min(self.tick + 1, 60)
-                elif self.user_panel.input_l_arrow_speed.collidepoint(mouse_pos):
-                    self.tick = max(self.tick - 1, 1)
-                elif self.user_panel.input_r_arrow_floor.collidepoint(mouse_pos):
-                    floor_number = min(dormitory.current_floor + 1, 60)
-                    dormitory.switch_floor(floor_number)
-                elif self.user_panel.input_l_arrow_floor.collidepoint(mouse_pos):
-                    floor_number = max(dormitory.current_floor - 1, 0)
-                    dormitory.switch_floor(floor_number)
-                elif self.user_panel.input_r_arrow_room.collidepoint(mouse_pos):
-                    self.room_number = min(self.room_number + 1, 7)
-                    dormitory.select_room(self.room_number)
-                elif self.user_panel.input_l_arrow_room.collidepoint(mouse_pos):
-                    self.room_number = max(self.room_number - 1, 0)
-                    dormitory.select_room(self.room_number)
-                elif self.leaderboard.r_arrow_leaderboard.collidepoint(mouse_pos):
-                    if self.leaderboard.type == 4:
-                        self.leaderboard.type = 0
-                    else:
-                        self.leaderboard.type += 1
-                elif self.leaderboard.l_arrow_leaderboard.collidepoint(mouse_pos):
-                    if self.leaderboard.type == 0:
-                        self.leaderboard.type = 4
-                    else:
-                        self.leaderboard.type -= 1
-
-        # else:
-        #     if event.unicode.isdigit():
-        #         if self.user_panel.input_rect.collidepoint(pygame.mouse.get_pos()):
-        #             self.user_panel.input_buffer += event.unicode
-        #         elif self.user_panel.room_input_rect.collidepoint(pygame.mouse.get_pos()):
-        #             self.user_panel.room_input_buffer += event.unicode
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            mouse_pos = pygame.mouse.get_pos()
+            if self.user_panel.input_r_arrow_speed.collidepoint(mouse_pos):
+                self.tick = self.user_panel.update_tick(1)
+            elif self.user_panel.input_l_arrow_speed.collidepoint(mouse_pos):
+                self.tick = self.user_panel.update_tick(-1)
+            elif self.user_panel.input_r_arrow_floor.collidepoint(mouse_pos):
+                dormitory.switch_floor(dormitory.current_floor + 1)
+            elif self.user_panel.input_l_arrow_floor.collidepoint(mouse_pos):
+                dormitory.switch_floor(dormitory.current_floor - 1)
+            elif self.user_panel.input_r_arrow_room.collidepoint(mouse_pos):
+                dormitory.select_room(dormitory.selected_room + 1)
+            elif self.user_panel.input_l_arrow_room.collidepoint(mouse_pos):
+                dormitory.select_room(dormitory.selected_room - 1)
+            elif self.leaderboard.r_arrow_leaderboard.collidepoint(mouse_pos):
+                self.leaderboard.switch_page(1)
+            elif self.leaderboard.l_arrow_leaderboard.collidepoint(mouse_pos):
+                self.leaderboard.switch_page(-1)
         return True
 

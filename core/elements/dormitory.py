@@ -9,16 +9,16 @@ class Dormitory:
         self.num_floors: int = config.NUM_FLOORS
         self.floors: List[Floor] = [Floor(level) for level in range(self.num_floors)]
         self.current_floor: int = 0
-        self.selected_room: Room = None  # Add this to track the selected room
+        self.selected_room: int = 0
 
 
     def switch_floor(self, floor_number: int) -> None:
         if 0 <= floor_number < self.num_floors:
             self.current_floor = floor_number
-            self.selected_room = 0
+            self.select_room(0)
 
     def select_room(self, room_number: int) -> None:
-        if 0 <= room_number < len(self.floors[self.current_floor].rooms):
+        if 0 < room_number < len(self.floors[self.current_floor].rooms):
             self.selected_room = room_number
 
     def finish_exam_session(self) -> None:

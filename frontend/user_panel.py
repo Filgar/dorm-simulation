@@ -7,19 +7,22 @@ class UserPanel:
 
     MEMORIAL_PHOTO = pygame.image.load(dconfig.MEMORIAL_PHOTO)
 
-    def __init__(self):
+    def __init__(self, initial_tick: int):
         UserPanel.MEMORIAL_PHOTO = UserPanel.MEMORIAL_PHOTO.convert()
 
+        arrow_size = 26
 
         # Input buffer for typing floor numbers
-        self.input_r_arrow_speed = pygame.Rect(dconfig.SCREEN_WIDTH - dconfig.PANEL_WIDTH + 280 - 26, 120 - 13, 26, 26)
-        self.input_l_arrow_speed = pygame.Rect(dconfig.SCREEN_WIDTH - dconfig.PANEL_WIDTH + 180, 120 - 13, 26, 26)
+        self.input_r_arrow_speed = pygame.Rect(dconfig.SCREEN_WIDTH - dconfig.PANEL_WIDTH + 280 - arrow_size, 120 - 13, arrow_size, arrow_size)
+        self.input_l_arrow_speed = pygame.Rect(dconfig.SCREEN_WIDTH - dconfig.PANEL_WIDTH + 180, 120 - 13, arrow_size, arrow_size)
 
-        self.input_r_arrow_floor = pygame.Rect(dconfig.SCREEN_WIDTH - dconfig.PANEL_WIDTH + 280 - 26, 195 - 13, 26, 26)
-        self.input_l_arrow_floor= pygame.Rect(dconfig.SCREEN_WIDTH - dconfig.PANEL_WIDTH + 180, 195 - 13, 26, 26)
+        self.input_r_arrow_floor = pygame.Rect(dconfig.SCREEN_WIDTH - dconfig.PANEL_WIDTH + 280 - arrow_size, 195 - 13, arrow_size, arrow_size)
+        self.input_l_arrow_floor= pygame.Rect(dconfig.SCREEN_WIDTH - dconfig.PANEL_WIDTH + 180, 195 - 13, arrow_size, arrow_size)
 
-        self.input_r_arrow_room = pygame.Rect(dconfig.SCREEN_WIDTH - dconfig.PANEL_WIDTH + 280 - 26, 260 - 13, 26, 26)
-        self.input_l_arrow_room = pygame.Rect(dconfig.SCREEN_WIDTH - dconfig.PANEL_WIDTH + 180, 260 - 13, 26, 26)
+        self.input_r_arrow_room = pygame.Rect(dconfig.SCREEN_WIDTH - dconfig.PANEL_WIDTH + 280 - arrow_size, 260 - 13, arrow_size, arrow_size)
+        self.input_l_arrow_room = pygame.Rect(dconfig.SCREEN_WIDTH - dconfig.PANEL_WIDTH + 180, 260 - 13, arrow_size, arrow_size)
+        
+        self.speed_label = initial_tick
 
         self.font16 = pygame.font.SysFont("Arial", 16)
         self.font20 = pygame.font.SysFont("Arial", 20)
@@ -43,23 +46,37 @@ class UserPanel:
         def arrow(x, y, size, direction):
             return [(x, y), (x + (-1 if direction == 0 else 1) * size, y - size // 2), (x + (-1 if direction == 0 else 1) * size, y + size // 2)]
 
-        text_surface = self.font24.render(f"Speed: ", True, dconfig.BLACK)
-        screen.blit(text_surface, (dconfig.SCREEN_WIDTH - dconfig.PANEL_WIDTH + 20, 105))
+        speed_desc = self.font24.render(f"Speed: ", True, dconfig.BLACK)
+        screen.blit(speed_desc, (dconfig.SCREEN_WIDTH - dconfig.PANEL_WIDTH + 20, 105))
+
+        input_desc = self.font24.render(f"Floor:", True, dconfig.BLACK)
+        screen.blit(input_desc, (dconfig.SCREEN_WIDTH - dconfig.PANEL_WIDTH + 20, 180))
+        
+        room_desc = self.font24.render(f"Room:", True, dconfig.BLACK)
+        screen.blit(room_desc, (dconfig.SCREEN_WIDTH - dconfig.PANEL_WIDTH + 20, 255))
 
         # Draw the input field
 
         pygame.draw.polygon(screen, dconfig.BLACK, arrow(dconfig.SCREEN_WIDTH - dconfig.PANEL_WIDTH + 280, 120, 26, 0))
         pygame.draw.polygon(screen, dconfig.BLACK, arrow(dconfig.SCREEN_WIDTH - dconfig.PANEL_WIDTH + 180, 120, 26, 1))
+        speed_text = self.font24.render(str(self.speed_label), True, dconfig.BLACK)
+        screen.blit(speed_text, (dconfig.SCREEN_WIDTH - dconfig.PANEL_WIDTH + 220, 110))
+
         pygame.draw.polygon(screen, dconfig.BLACK, arrow(dconfig.SCREEN_WIDTH - dconfig.PANEL_WIDTH + 280, 195, 26, 0))
         pygame.draw.polygon(screen, dconfig.BLACK, arrow(dconfig.SCREEN_WIDTH - dconfig.PANEL_WIDTH + 180, 195, 26, 1))
+        floor_text = self.font24.render(str(dormitory.current_floor + 1), True, dconfig.BLACK)
+        screen.blit(floor_text, (dconfig.SCREEN_WIDTH - dconfig.PANEL_WIDTH + 220, 185))
+
         pygame.draw.polygon(screen, dconfig.BLACK, arrow(dconfig.SCREEN_WIDTH - dconfig.PANEL_WIDTH + 280, 260, 26, 0))
         pygame.draw.polygon(screen, dconfig.BLACK, arrow(dconfig.SCREEN_WIDTH - dconfig.PANEL_WIDTH + 180, 260, 26, 1))
+        room_text = self.font24.render(str(dormitory.selected_room + 1), True, dconfig.BLACK)
+        screen.blit(room_text, (dconfig.SCREEN_WIDTH - dconfig.PANEL_WIDTH + 220, 250))
 
-        input_desc = self.font24.render(f"Floor: {dormitory.current_floor + 1}", True, dconfig.BLACK)
-        screen.blit(input_desc, (dconfig.SCREEN_WIDTH - dconfig.PANEL_WIDTH + 20, 180))
 
     
-
+    def update_tick(self, change: int) -> int:
+        self.speed_label = max(min(5 * ((self.speed_label // 5 + 1 * change)), 60), 1)
+        return self.speed_label
 
     def draw_time(self, screen, time, difficulty):
         if difficulty < 0.75:
@@ -86,9 +103,7 @@ class UserPanel:
         floor = dormitory.floors[dormitory.current_floor]
         students_in_room = floor.get_room_owners(floor.rooms[dormitory.selected_room])
 
-        top = 250
-        screen.blit(self.font20.render(f"Students in room {dormitory.selected_room + 1}:", True, dconfig.BLACK), (dconfig.SCREEN_WIDTH - dconfig.PANEL_WIDTH + 20, top))
-        top += 30
+        top = 280
         for student in students_in_room: 
             if student.dropout and config.DEBUG == False:
                 top = self.draw_student_memorial(screen, student, top)
